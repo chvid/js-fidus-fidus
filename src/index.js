@@ -1,14 +1,13 @@
-import './index.css';
+import "./index.css";
 
-import GraphicsSheet from './graphics/graphics-sheet.png'
+import GraphicsSheet from "./graphics/graphics-sheet.png";
 
-const testScreen = new class {
+const testScreen = new (class {
     x = 500;
     y = 50;
     dx = 0;
 
     move({ keyboard }) {
-
         if (keyboard["ArrowRight"]) this.dx += 1;
         if (keyboard["ArrowLeft"]) this.dx -= 1;
         this.x += this.dx;
@@ -17,9 +16,9 @@ const testScreen = new class {
     }
 
     draw({ width, height, images }) {
-        images.draw({ image: "red", x: width / 1000.5 * this.x, y: height / 100.5 * this.y, rotate: this.dx * 0.1 });
+        images.draw({ image: "blue", x: (width / 1000.5) * this.x, y: (height / 100.5) * this.y, rotate: this.dx * 0.1 });
     }
-}
+})();
 
 const context = {
     // graphics
@@ -27,8 +26,8 @@ const context = {
     // height
     // counter
     keyboard: {},
-    show: screen => context.nextScreen = screen
-}
+    show: screen => (context.nextScreen = screen)
+};
 
 window.onload = () => {
     const canvasElement = document.getElementById("canvas");
@@ -63,13 +62,12 @@ window.onload = () => {
 
         context.counter += 1;
     }, 50);
-}
+};
 
-document.addEventListener("keydown", e => context.keyboard[e.key] = true);
+document.addEventListener("keydown", e => (context.keyboard[e.key] = true));
 document.addEventListener("keyup", e => delete context.keyboard[e.key]);
 
-
-const images = new class {
+const images = new (class {
     entries = {};
     sourceImages = {};
 
@@ -98,35 +96,32 @@ const images = new class {
         context.graphics.rotate(rotate);
         context.graphics.globalAlpha = alpha;
         context.graphics.globalCompositeOperation = compositeOperation;
-        context.graphics.drawImage(
-            sourceImage, entry.x, entry.y, entry.w, entry.h,
-            -entry.w * scale / 2, -entry.h * scale / 2, entry.w * scale, entry.h * scale
-        );
+        context.graphics.drawImage(sourceImage, entry.x, entry.y, entry.w, entry.h, (-entry.w * scale) / 2, (-entry.h * scale) / 2, entry.w * scale, entry.h * scale);
         context.graphics.restore();
     }
-}
+})();
 
 const init = ({ graphics }) => {
     images.init(graphics);
     context.images = images;
-}
+};
 
 init({
     graphics: {
-        "red": { "image": GraphicsSheet, x: 0, y: 0, w: 128, h: 128, scale: 0.4 },
-        "red-falling": { "image": GraphicsSheet, x: 0, y: 128, w: 128, h: 128, scale: 0.4 },
-        "blue": { "image": GraphicsSheet, x: 128, y: 0, w: 128, h: 128, scale: 0.4 },
-        "blue-falling": { "image": GraphicsSheet, x: 128, y: 128, w: 128, h: 128, scale: 0.4 },
-        "yellow": { "image": GraphicsSheet, x: 256, y: 0, w: 128, h: 128, scale: 0.4 },
-        "yellow-falling": { "image": GraphicsSheet, x: 256, y: 128, w: 128, h: 128, scale: 0.4 },
-        "green": { "image": GraphicsSheet, x: 384, y: 0, w: 128, h: 128, scale: 0.4 },
-        "green-falling": { "image": GraphicsSheet, x: 384, y: 128, w: 128, h: 128, scale: 0.4 },
-        "purple": { "image": GraphicsSheet, x: 512, y: 0, w: 128, h: 128, scale: 0.4 },
-        "purple-falling": { "image": GraphicsSheet, x: 512, y: 128, w: 128, h: 128, scale: 0.4 },
-        "black": { "image": GraphicsSheet, x: 640, y: 0, w: 128, h: 128, scale: 0.4 },
-        "black-falling": { "image": GraphicsSheet, x: 640, y: 128, w: 128, h: 128, scale: 0.4 },
-        "rainbow": { "image": GraphicsSheet, x: 768, y: 0, w: 128, h: 128, scale: 0.4 },
-        "rainbow-falling": { "image": GraphicsSheet, x: 768, y: 128, w: 128, h: 128, scale: 0.4 }
+        red: { image: GraphicsSheet, x: 0, y: 0, w: 128, h: 128, scale: 0.4 },
+        "red-falling": { image: GraphicsSheet, x: 0, y: 128, w: 128, h: 128, scale: 0.4 },
+        blue: { image: GraphicsSheet, x: 128, y: 0, w: 128, h: 128, scale: 0.4 },
+        "blue-falling": { image: GraphicsSheet, x: 128, y: 128, w: 128, h: 128, scale: 0.4 },
+        yellow: { image: GraphicsSheet, x: 256, y: 0, w: 128, h: 128, scale: 0.4 },
+        "yellow-falling": { image: GraphicsSheet, x: 256, y: 128, w: 128, h: 128, scale: 0.4 },
+        green: { image: GraphicsSheet, x: 384, y: 0, w: 128, h: 128, scale: 0.4 },
+        "green-falling": { image: GraphicsSheet, x: 384, y: 128, w: 128, h: 128, scale: 0.4 },
+        purple: { image: GraphicsSheet, x: 512, y: 0, w: 128, h: 128, scale: 0.4 },
+        "purple-falling": { image: GraphicsSheet, x: 512, y: 128, w: 128, h: 128, scale: 0.4 },
+        black: { image: GraphicsSheet, x: 640, y: 0, w: 128, h: 128, scale: 0.4 },
+        "black-falling": { image: GraphicsSheet, x: 640, y: 128, w: 128, h: 128, scale: 0.4 },
+        rainbow: { image: GraphicsSheet, x: 768, y: 0, w: 128, h: 128, scale: 0.4 },
+        "rainbow-falling": { image: GraphicsSheet, x: 768, y: 128, w: 128, h: 128, scale: 0.4 }
     }
 });
 
