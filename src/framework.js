@@ -87,7 +87,7 @@ const images = new (class {
     }
 })();
 
-const scene = new class {
+const scene = new (class {
     elements = [];
 
     elementsToAdd = [];
@@ -120,7 +120,7 @@ const scene = new class {
         }
         this.elementsToRemove = [];
     }
-}
+})();
 
 export const init = ({ graphics, start }) => {
     images.init(graphics);
