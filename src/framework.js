@@ -33,10 +33,15 @@ window.onload = () => {
             context.screen.move(context);
         }
 
+        context.scene.move(context);
+
         context.graphics.clearRect(0, 0, context.width, context.height);
+
         if (context.screen && context.screen.draw) {
             context.screen.draw(context);
         }
+
+        context.scene.draw(context);
 
         context.counter += 1;
     }, 50);
@@ -44,6 +49,9 @@ window.onload = () => {
 
 document.addEventListener("keydown", e => (context.keyboard[e.key] = true));
 document.addEventListener("keyup", e => delete context.keyboard[e.key]);
+
+// TODO: image i inputstruktur -> source
+// TODO: image default w & h
 
 const images = new (class {
     entries = {};
@@ -79,8 +87,44 @@ const images = new (class {
     }
 })();
 
+const scene = new class {
+    elements = [];
+
+    elementsToAdd = [];
+    elementsToRemove = [];
+
+    add(element) {
+        this.elementsToAdd.push(element);
+    }
+
+    remove(element) {
+        this.elementsToRemove.push(element);
+    }
+
+    draw(c) {
+        for (let e of this.elements) if (e.draw) e.draw(c);
+    }
+
+    move(c) {
+        for (let e of this.elementsToAdd) {
+            this.elements.push(e);
+            if (e.enter) e.enter(c);
+        }
+        this.elementsToAdd = [];
+
+        for (let e of this.elements) if (e.move) e.move(c);
+
+        for (let e of this.elementsToRemove) {
+            if (e.exit) e.exit(c);
+            this.elements.splice(this.elements.indexOf(e), 1);
+        }
+        this.elementsToRemove = [];
+    }
+}
+
 export const init = ({ graphics, start }) => {
     images.init(graphics);
     context.images = images;
+    context.scene = scene;
     context.show(start);
 };

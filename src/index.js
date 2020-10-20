@@ -3,17 +3,39 @@ import "./index.css";
 import GraphicsSheet from "./graphics/graphics-sheet.png";
 import { init } from "./framework";
 
+class Animation {
+    enter({ counter }) {
+        this.enterAt = counter;
+    }
+
+    move({ counter, scene }) {
+        if (counter > 100 + this.enterAt) {
+            scene.remove(this);
+        }
+    }
+
+    draw({ images, counter }) {
+        images.draw({ image: "blue", x: 10 + counter - this.enterAt, y: 50, rotate: 1 });
+    }
+}
+
 const testScreen = new class {
     x = 500;
     y = 50;
     dx = 0;
 
-    move({ keyboard }) {
+    enter({ scene }) {
+        scene.add(new Animation());
+    }
+
+    move({ keyboard, scene }) {
+        console.log(keyboard)
         if (keyboard["ArrowRight"]) this.dx += 1;
         if (keyboard["ArrowLeft"]) this.dx -= 1;
         this.x += this.dx;
         if (keyboard["ArrowDown"]) this.y += 1;
         if (keyboard["ArrowUp"]) this.y -= 1;
+        if (keyboard[" "]) scene.add(new Animation());
     }
 
     draw({ width, height, images }) {

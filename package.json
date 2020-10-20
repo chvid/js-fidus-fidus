@@ -6,7 +6,7 @@
     "scripts": {
         "build": "webpack",
         "clean": "rimraf dist",
-        "start": "webpack serve",
+        "start": "webpack serve -d source-map",
         "prettier": "prettier --write index.html package.json webpack.config.js src"
     },
     "keywords": [],
