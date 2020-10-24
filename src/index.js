@@ -18,7 +18,7 @@ class Animation {
         let maxDuration = 0;
         for (let k of Object.keys(this.properties)) {
             let v = this.properties[k];
-            if (typeof (v) == "object") {
+            if (typeof v == "object") {
                 let delta = (counter - this.enterAt) / v.duration;
 
                 maxDuration = Math.max(maxDuration, v.duration);
@@ -51,8 +51,13 @@ const testScreen = new (class {
     dx = 0;
 
     createSprite() {
-        return new Animation(
-            { image: "red", x: { from: this.x, to: 200, duration: 20 }, y: this.y, scale: { from: 1, to: 0, duration: 100 }, rotate: { from: 6.28, to: 0, duration: 10, loop: true } });
+        return new Animation({
+            image: "red",
+            x: { from: this.x, to: 200, duration: 20 },
+            y: this.y,
+            scale: { from: 1, to: 0, duration: 100 },
+            rotate: { from: 6.28, to: 0, duration: 10, loop: true }
+        });
     }
 
     enter({ scene }) {
