@@ -4,18 +4,44 @@ import GraphicsSheet from "./graphics/graphics-sheet.png";
 import { init } from "./framework";
 
 class Animation {
+    computed = {};
+
+    constructor(properties) {
+        this.properties = properties;
+    }
+
     enter({ counter }) {
         this.enterAt = counter;
     }
 
     move({ counter, scene }) {
-        if (counter > 100 + this.enterAt) {
+        let maxDuration = 0;
+        for (let k of Object.keys(this.properties)) {
+            let v = this.properties[k];
+            if (typeof (v) == "object") {
+                let delta = (counter - this.enterAt) / v.duration;
+
+                maxDuration = Math.max(maxDuration, v.duration);
+
+                if (v.loop) {
+                    delta = delta - Math.floor(delta);
+                } else {
+                    delta = Math.min(1, delta);
+                }
+
+                this.computed[k] = v.to * delta + v.from * (1 - delta);
+            } else {
+                this.computed[k] = v;
+            }
+        }
+
+        if (counter > maxDuration + this.enterAt) {
             scene.remove(this);
         }
     }
 
-    draw({ images, counter }) {
-        images.draw({ image: "blue", x: 10 + counter - this.enterAt, y: 50, rotate: 1 });
+    draw({ images }) {
+        images.draw(this.computed);
     }
 }
 
@@ -24,22 +50,28 @@ const testScreen = new (class {
     y = 50;
     dx = 0;
 
+    createSprite() {
+        return new Animation(
+            { image: "red", x: { from: this.x, to: 200, duration: 20 }, y: this.y, scale: { from: 1, to: 0, duration: 100 }, rotate: { from: 6.28, to: 0, duration: 10, loop: true } });
+    }
+
     enter({ scene }) {
-        scene.add(new Animation());
+        scene.add(this.createSprite());
     }
 
     move({ keyboard, scene }) {
-        console.log(keyboard);
         if (keyboard["ArrowRight"]) this.dx += 1;
         if (keyboard["ArrowLeft"]) this.dx -= 1;
-        this.x += this.dx;
         if (keyboard["ArrowDown"]) this.y += 1;
         if (keyboard["ArrowUp"]) this.y -= 1;
-        if (keyboard[" "]) scene.add(new Animation());
+        if (keyboard[" "]) {
+            scene.add(this.createSprite());
+        }
+        this.x += this.dx;
     }
 
     draw({ width, height, images }) {
-        images.draw({ image: "green", x: (width / 1000.5) * this.x, y: (height / 100.5) * this.y, rotate: this.dx * 0.1 });
+        images.draw({ image: "green", x: this.x, y: this.y, rotate: this.dx * 0.1 });
     }
 })();
 
