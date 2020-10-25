@@ -6,8 +6,8 @@ import { init } from "./framework";
 class Animation {
     computed = {};
 
-    constructor(properties) {
-        this.properties = properties;
+    constructor(script) {
+        this.script = script;
     }
 
     enter({ counter }) {
@@ -16,8 +16,8 @@ class Animation {
 
     move({ counter, scene }) {
         let maxDuration = 0;
-        for (let k of Object.keys(this.properties)) {
-            let v = this.properties[k];
+        for (let k of Object.keys(this.script)) {
+            let v = this.script[k];
             if (typeof v == "object") {
                 let delta = (counter - this.enterAt) / v.duration;
 
