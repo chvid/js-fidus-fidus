@@ -62,7 +62,7 @@ init({
         blackFalling: { source: GraphicsSheet, x: 640, y: 128, w: 128, h: 128, scale: 0.4 },
         rainbow: { source: GraphicsSheet, x: 768, y: 0, w: 128, h: 128, scale: 0.4 },
         rainbowFalling: { source: GraphicsSheet, x: 768, y: 128, w: 128, h: 128, scale: 0.4 },
-        background: { source: Background, x: 0, y: 0, w: 640, h: 1136, scale: 0.5 }
+        background: { source: Background, scale: 0.5 }
     },
     start: testScreen
 });

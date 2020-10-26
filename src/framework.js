@@ -20,7 +20,7 @@ window.onload = () => {
             context.graphics.strokeText("loading ...", 20, 20);
             return;
         }
-        
+
         if (context.nextScreen) {
             if (context.screen && context.screen.exit) {
                 context.screen.exit(context);
@@ -55,8 +55,6 @@ window.onload = () => {
 document.addEventListener("keydown", e => (context.keyboard[e.key] = true));
 document.addEventListener("keyup", e => delete context.keyboard[e.key]);
 
-// TODO: image default w & h
-
 const images = new (class {
     entries = {};
     sourceImages = {};
@@ -75,6 +73,8 @@ const images = new (class {
     draw({ image, x, y, scale = 1, rotate = 0, alpha = 1, nudge = { x: 0, y: 0 }, compositeOperation = "source-over" }) {
         const entry = this.entries[image];
         const sourceImage = this.sourceImages[entry.source];
+        const w = entry.w ? entry.w : sourceImage.width;
+        const h = entry.h ? entry.h : sourceImage.height;
 
         scale *= entry.scale;
 
@@ -86,7 +86,7 @@ const images = new (class {
         context.graphics.rotate(rotate);
         context.graphics.globalAlpha = alpha;
         context.graphics.globalCompositeOperation = compositeOperation;
-        context.graphics.drawImage(sourceImage, entry.x, entry.y, entry.w, entry.h, (-entry.w * scale) / 2, (-entry.h * scale) / 2, entry.w * scale, entry.h * scale);
+        context.graphics.drawImage(sourceImage, entry.x ? entry.x : 0, entry.y ? entry.y : 0, w, h, (-w * scale) / 2, (-h * scale) / 2, w * scale, h * scale);
         context.graphics.restore();
     }
 
