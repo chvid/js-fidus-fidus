@@ -1,10 +1,11 @@
 import "./index.css";
 
 import GraphicsSheet from "./graphics/graphics-sheet.png";
+import Background from "./graphics/background.png";
 import { init, Animation } from "./framework";
 
 const testScreen = new (class {
-    x = 500;
+    x = 160;
     y = 50;
     dx = 0;
 
@@ -40,6 +41,7 @@ const testScreen = new (class {
     }
 
     draw({ images }) {
+        images.draw({ image: "background", x: 160, y: 284 })
         images.draw({ image: "green", x: this.x, y: this.y, rotate: this.dx * 0.1 });
     }
 })();
@@ -59,7 +61,8 @@ init({
         black: { source: GraphicsSheet, x: 640, y: 0, w: 128, h: 128, scale: 0.4 },
         blackFalling: { source: GraphicsSheet, x: 640, y: 128, w: 128, h: 128, scale: 0.4 },
         rainbow: { source: GraphicsSheet, x: 768, y: 0, w: 128, h: 128, scale: 0.4 },
-        rainbowFalling: { source: GraphicsSheet, x: 768, y: 128, w: 128, h: 128, scale: 0.4 }
+        rainbowFalling: { source: GraphicsSheet, x: 768, y: 128, w: 128, h: 128, scale: 0.4 },
+        background: { source: Background, x: 0, y: 0, w: 640, h: 1136, scale: 0.5 }
     },
     start: testScreen
 });
