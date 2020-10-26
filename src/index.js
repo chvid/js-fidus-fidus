@@ -74,13 +74,13 @@ class Animation {
                     let start = pointer;
                     pointer += this.computeDuration(i);
                     if (start <= time) {
-                        result = { ...result, ... this.computeState(context, i, time - start) };
+                        result = { ...result, ...this.computeState(context, i, time - start) };
                     }
                 }
                 break;
             case "group":
                 for (let i of script.items) {
-                    result = { ...result, ... this.computeState(context, i, time) }
+                    result = { ...result, ...this.computeState(context, i, time) };
                 }
                 break;
             case "set":
@@ -106,33 +106,8 @@ class Animation {
         return result;
     }
 
-    move({ counter, scene }) {
+    move({ counter }) {
         this.computed = this.computeState({ self: this, ...arguments[0] }, this.script, counter - this.enterAt);
-        /*
-        let maxDuration = 0;
-        for (let k of Object.keys(this.script)) {
-            let v = this.script[k];
-            if (typeof v == "object") {
-                let delta = (counter - this.enterAt) / v.duration;
-
-                maxDuration = Math.max(maxDuration, v.duration);
-
-                if (v.loop) {
-                    delta = delta - Math.floor(delta);
-                } else {
-                    delta = Math.min(1, delta);
-                }
-
-                this.computed[k] = v.to * delta + v.from * (1 - delta);
-            } else {
-                this.computed[k] = v;
-            }
-        }
-        */
-
-        if (counter > 200 + this.enterAt) {
-            scene.remove(this);
-        }
     }
 
     draw({ images }) {
@@ -149,101 +124,15 @@ const testScreen = new (class {
         return new Animation(
             Animation.group(
                 Animation.sequence(
-                    Animation.group(
-                        Animation.set("image", "red"),
-                        Animation.animate("x", this.x, 20, 20),
-                        Animation.set("y", this.y)
-                    ),
-                    Animation.group(
-                        Animation.set("image", "red"),
-                        Animation.animate("x", 20, this.x, 20),
-                        Animation.set("y", this.y)
-                    ),
+                    Animation.group(Animation.set("image", "red"), Animation.animate("x", this.x, 20, 20), Animation.set("y", this.y)),
+                    Animation.group(Animation.set("image", "redFalling"), Animation.animate("x", 20, this.x, 20)),
                     Animation.wait(10),
                     Animation.call(({ scene, self }) => scene.remove(self))
                 ),
-                Animation.animate("rotate", 0, 6.28, 10, 4),
-                Animation.animate("scale", 1, 0, 40)
+                Animation.animate("rotate", 0, 6.28, 10, 5),
+                Animation.animate("scale", 1, 0.3, 40)
             )
         );
-
-        /*
-        return new Animation(
-            {
-                type: "group",
-                items: [
-                    {
-                        type: "sequence",
-                        items: [
-                            {
-                                type: "group",
-                                items: [
-                                    { type: "set", property: "image", value: "red" },
-                                    { type: "animate", property: "x", from: this.x, to: 20, duration: 20 },
-                                    { type: "set", property: "y", value: this.y },
-                                ]
-                            },
-                            {
-                                type: "group",
-                                items: [
-                                    { type: "set", property: "image", value: "red" },
-                                    { type: "animate", property: "x", from: 20, to: this.x, duration: 20 },
-                                    { type: "set", property: "y", value: this.y },
-                                ]
-                            },
-                            {
-                                type: "wait",
-                                duration: 10
-                            },
-                            {
-                                type: "call",
-                                value: ({ scene, self }) => scene.remove(self)
-                            }
-                        ]
-                    },
-                    {
-                        type: "animate",
-                        property: "rotate",
-                        from: 0,
-                        to: 6.28,
-                        duration: 20,
-                        loop: 50
-                    },
-                    {
-                        type: "animate",
-                        property: "scale",
-                        from: 1,
-                        to: 0,
-                        duration: 40
-
-                    }
-                ]
-            }
-        )
-        */
-        /*
-        return new Animation(
-            {
-                type: "group",
-                items: [
-                    { type: "set", property: "image", value: "red" },
-                    { type: "animate", property: "x", from: this.x, to: 20, duration: 20 },
-                    { type: "set", property: "y", value: this.y },
-                    { type: "animate", property: "rotate", from: 6.28, to: 0, duration: 10, loop: 2 },
-                    { type: "animate", property: "scale", from: 1, to: 0, duration: 100 }
-                ]
-            }
-        )
-        */
-        /*
-        return new Animation({
-            image: "red",
-            x: { from: this.x, to: 200, duration: 20 },
-            y: this.y,
-            scale: { from: 1, to: 0, duration: 100 },
-            rotate: { from: 6.28, to: 0, duration: 10, loop: true }
-        });
-        */
     }
 
     enter({ scene }) {
@@ -261,7 +150,7 @@ const testScreen = new (class {
         this.x += this.dx;
     }
 
-    draw({ width, height, images }) {
+    draw({ images }) {
         images.draw({ image: "green", x: this.x, y: this.y, rotate: this.dx * 0.1 });
     }
 })();
