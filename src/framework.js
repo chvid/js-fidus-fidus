@@ -16,6 +16,11 @@ window.onload = () => {
     context.counter = 0;
 
     setInterval(() => {
+        if (!context.images.checkLoadComplete()) {
+            context.graphics.strokeText("loading ...", 20, 20);
+            return;
+        }
+        
         if (context.nextScreen) {
             if (context.screen && context.screen.exit) {
                 context.screen.exit(context);
@@ -83,6 +88,14 @@ const images = new (class {
         context.graphics.globalCompositeOperation = compositeOperation;
         context.graphics.drawImage(sourceImage, entry.x, entry.y, entry.w, entry.h, (-entry.w * scale) / 2, (-entry.h * scale) / 2, entry.w * scale, entry.h * scale);
         context.graphics.restore();
+    }
+
+    checkLoadComplete() {
+        let complete = true;
+        for (let i of Object.values(this.sourceImages)) {
+            complete = complete && i.complete;
+        }
+        return complete;
     }
 })();
 
