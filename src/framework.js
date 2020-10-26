@@ -50,7 +50,6 @@ window.onload = () => {
 document.addEventListener("keydown", e => (context.keyboard[e.key] = true));
 document.addEventListener("keyup", e => delete context.keyboard[e.key]);
 
-// TODO: image i inputstruktur -> source
 // TODO: image default w & h
 
 const images = new (class {
@@ -60,17 +59,17 @@ const images = new (class {
     init(entries) {
         this.entries = entries;
         for (let e of Object.values(entries)) {
-            var src = e.image;
-            if (this.sourceImages[src] == null) {
-                this.sourceImages[src] = new Image();
-                this.sourceImages[src].src = src;
+            var source = e.source;
+            if (this.sourceImages[source] == null) {
+                this.sourceImages[source] = new Image();
+                this.sourceImages[source].src = source;
             }
         }
     }
 
     draw({ image, x, y, scale = 1, rotate = 0, alpha = 1, nudge = { x: 0, y: 0 }, compositeOperation = "source-over" }) {
         const entry = this.entries[image];
-        const sourceImage = this.sourceImages[entry.image];
+        const sourceImage = this.sourceImages[entry.source];
 
         scale *= entry.scale;
 

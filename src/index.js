@@ -45,20 +45,20 @@ const testScreen = new (class {
 
 init({
     graphics: {
-        red: { image: GraphicsSheet, x: 0, y: 0, w: 128, h: 128, scale: 0.4 },
-        redFalling: { image: GraphicsSheet, x: 0, y: 128, w: 128, h: 128, scale: 0.4 },
-        blue: { image: GraphicsSheet, x: 128, y: 0, w: 128, h: 128, scale: 0.4 },
-        blueFalling: { image: GraphicsSheet, x: 128, y: 128, w: 128, h: 128, scale: 0.4 },
-        yellow: { image: GraphicsSheet, x: 256, y: 0, w: 128, h: 128, scale: 0.4 },
-        yellowFalling: { image: GraphicsSheet, x: 256, y: 128, w: 128, h: 128, scale: 0.4 },
-        green: { image: GraphicsSheet, x: 384, y: 0, w: 128, h: 128, scale: 0.4 },
-        greenFalling: { image: GraphicsSheet, x: 384, y: 128, w: 128, h: 128, scale: 0.4 },
-        purple: { image: GraphicsSheet, x: 512, y: 0, w: 128, h: 128, scale: 0.4 },
-        purpleFalling: { image: GraphicsSheet, x: 512, y: 128, w: 128, h: 128, scale: 0.4 },
-        black: { image: GraphicsSheet, x: 640, y: 0, w: 128, h: 128, scale: 0.4 },
-        blackFalling: { image: GraphicsSheet, x: 640, y: 128, w: 128, h: 128, scale: 0.4 },
-        rainbow: { image: GraphicsSheet, x: 768, y: 0, w: 128, h: 128, scale: 0.4 },
-        rainbowFalling: { image: GraphicsSheet, x: 768, y: 128, w: 128, h: 128, scale: 0.4 }
+        red: { source: GraphicsSheet, x: 0, y: 0, w: 128, h: 128, scale: 0.4 },
+        redFalling: { source: GraphicsSheet, x: 0, y: 128, w: 128, h: 128, scale: 0.4 },
+        blue: { source: GraphicsSheet, x: 128, y: 0, w: 128, h: 128, scale: 0.4 },
+        blueFalling: { source: GraphicsSheet, x: 128, y: 128, w: 128, h: 128, scale: 0.4 },
+        yellow: { source: GraphicsSheet, x: 256, y: 0, w: 128, h: 128, scale: 0.4 },
+        yellowFalling: { source: GraphicsSheet, x: 256, y: 128, w: 128, h: 128, scale: 0.4 },
+        green: { source: GraphicsSheet, x: 384, y: 0, w: 128, h: 128, scale: 0.4 },
+        greenFalling: { source: GraphicsSheet, x: 384, y: 128, w: 128, h: 128, scale: 0.4 },
+        purple: { source: GraphicsSheet, x: 512, y: 0, w: 128, h: 128, scale: 0.4 },
+        purpleFalling: { source: GraphicsSheet, x: 512, y: 128, w: 128, h: 128, scale: 0.4 },
+        black: { source: GraphicsSheet, x: 640, y: 0, w: 128, h: 128, scale: 0.4 },
+        blackFalling: { source: GraphicsSheet, x: 640, y: 128, w: 128, h: 128, scale: 0.4 },
+        rainbow: { source: GraphicsSheet, x: 768, y: 0, w: 128, h: 128, scale: 0.4 },
+        rainbowFalling: { source: GraphicsSheet, x: 768, y: 128, w: 128, h: 128, scale: 0.4 }
     },
     start: testScreen
 });
