@@ -122,6 +122,118 @@ const scene = new (class {
     }
 })();
 
+export class Animation {
+    static group(...items) {
+        return { type: "group", items };
+    }
+
+    static sequence(...items) {
+        return { type: "sequence", items };
+    }
+
+    static set(property, value) {
+        return { type: "set", property, value };
+    }
+
+    static animate(property, from, to, duration, loop = 1) {
+        return { type: "animate", property, from, to, duration, loop };
+    }
+
+    static wait(duration) {
+        return { type: "wait", duration };
+    }
+
+    static call(value) {
+        return { type: "call", value };
+    }
+
+    computed = {};
+
+    constructor(script) {
+        this.script = script;
+    }
+
+    enter({ counter }) {
+        this.enterAt = counter;
+    }
+
+    computeDuration(script) {
+        let result = 0;
+        switch (script.type) {
+            case "sequence":
+                for (let i of script.items) {
+                    result += this.computeDuration(i);
+                }
+                break;
+            case "group":
+                for (let i of script.items) {
+                    result = Math.max(result, this.computeDuration(i));
+                }
+                break;
+            case "animate":
+                if (script.loop) {
+                    result = script.duration * script.loop;
+                } else {
+                    result = script.duration;
+                }
+                break;
+            case "wait":
+                result = script.duration;
+                break;
+        }
+        return result;
+    }
+
+    computeState(context, script, time) {
+        let result = {};
+        switch (script.type) {
+            case "sequence":
+                let pointer = 0;
+                for (let i of script.items) {
+                    let start = pointer;
+                    pointer += this.computeDuration(i);
+                    if (start <= time) {
+                        result = { ...result, ...this.computeState(context, i, time - start) };
+                    }
+                }
+                break;
+            case "group":
+                for (let i of script.items) {
+                    result = { ...result, ...this.computeState(context, i, time) };
+                }
+                break;
+            case "set":
+                result[script.property] = script.value;
+                break;
+            case "animate":
+                let delta = time / script.duration;
+
+                if (script.loop && delta < script.loop) {
+                    delta = delta - Math.floor(delta);
+                } else {
+                    delta = Math.min(1, delta);
+                }
+
+                result[script.property] = script.to * delta + script.from * (1 - delta);
+                break;
+            case "call":
+                if (time == 0) script.value(context);
+                break;
+            case "wait":
+                break;
+        }
+        return result;
+    }
+
+    move({ counter }) {
+        this.computed = this.computeState({ self: this, ...arguments[0] }, this.script, counter - this.enterAt);
+    }
+
+    draw({ images }) {
+        images.draw(this.computed);
+    }
+}
+
 export const init = ({ graphics, start }) => {
     images.init(graphics);
     context.images = images;
