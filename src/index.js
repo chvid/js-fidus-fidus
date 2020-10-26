@@ -4,6 +4,30 @@ import GraphicsSheet from "./graphics/graphics-sheet.png";
 import { init } from "./framework";
 
 class Animation {
+    static group(...items) {
+        return { type: "group", items };
+    }
+
+    static sequence(...items) {
+        return { type: "sequence", items };
+    }
+
+    static set(property, value) {
+        return { type: "set", property, value };
+    }
+
+    static animate(property, from, to, duration, loop = 1) {
+        return { type: "animate", property, from, to, duration, loop };
+    }
+
+    static wait(duration) {
+        return { type: "wait", duration };
+    }
+
+    static call(value) {
+        return { type: "call", value };
+    }
+
     computed = {};
 
     constructor(script) {
@@ -123,6 +147,28 @@ const testScreen = new (class {
 
     createSprite() {
         return new Animation(
+            Animation.group(
+                Animation.sequence(
+                    Animation.group(
+                        Animation.set("image", "red"),
+                        Animation.animate("x", this.x, 20, 20),
+                        Animation.set("y", this.y)
+                    ),
+                    Animation.group(
+                        Animation.set("image", "red"),
+                        Animation.animate("x", 20, this.x, 20),
+                        Animation.set("y", this.y)
+                    ),
+                    Animation.wait(10),
+                    Animation.call(({ scene, self }) => scene.remove(self))
+                ),
+                Animation.animate("rotate", 0, 6.28, 10, 4),
+                Animation.animate("scale", 1, 0, 40)
+            )
+        );
+
+        /*
+        return new Animation(
             {
                 type: "group",
                 items: [
@@ -174,6 +220,7 @@ const testScreen = new (class {
                 ]
             }
         )
+        */
         /*
         return new Animation(
             {
