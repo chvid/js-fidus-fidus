@@ -18,7 +18,8 @@ const testScreen = new (class {
                     Animation.call(({ scene, self }) => scene.remove(self))
                 ),
                 Animation.animate("rotate", 0, 6.28, 10, 5),
-                Animation.animate("scale", 1, 0.3, 40)
+                Animation.animate("scale", 1, 0.3, 40),
+                Animation.animate("alpha", 1, 0, 40)
             )
         );
     }
