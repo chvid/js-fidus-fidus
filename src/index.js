@@ -14,7 +14,77 @@ class Animation {
         this.enterAt = counter;
     }
 
+    computeDuration(script) {
+        let result = 0;
+        switch (script.type) {
+            case "sequence":
+                for (let i of script.items) {
+                    result += this.computeDuration(i);
+                }
+                break;
+            case "group":
+                for (let i of script.items) {
+                    result = Math.max(result, this.computeDuration(i));
+                }
+                break;
+            case "animate":
+                if (script.loop) {
+                    result = script.duration * script.loop;
+                } else {
+                    result = script.duration;
+                }
+                break;
+            case "wait":
+                result = script.duration;
+                break;
+        }
+        return result;
+    }
+
+    computeState(context, script, time) {
+        let result = {};
+        switch (script.type) {
+            case "sequence":
+                let pointer = 0;
+                for (let i of script.items) {
+                    let start = pointer;
+                    pointer += this.computeDuration(i);
+                    if (start <= time) {
+                        result = { ...result, ... this.computeState(context, i, time - start) };
+                    }
+                }
+                break;
+            case "group":
+                for (let i of script.items) {
+                    result = { ...result, ... this.computeState(context, i, time) }
+                }
+                break;
+            case "set":
+                result[script.property] = script.value;
+                break;
+            case "animate":
+                let delta = time / script.duration;
+
+                if (script.loop && delta < script.loop) {
+                    delta = delta - Math.floor(delta);
+                } else {
+                    delta = Math.min(1, delta);
+                }
+
+                result[script.property] = script.to * delta + script.from * (1 - delta);
+                break;
+            case "call":
+                if (time == 0) script.value(context);
+                break;
+            case "wait":
+                break;
+        }
+        return result;
+    }
+
     move({ counter, scene }) {
+        this.computed = this.computeState({ self: this, ...arguments[0] }, this.script, counter - this.enterAt);
+        /*
         let maxDuration = 0;
         for (let k of Object.keys(this.script)) {
             let v = this.script[k];
@@ -34,8 +104,9 @@ class Animation {
                 this.computed[k] = v;
             }
         }
+        */
 
-        if (counter > maxDuration + this.enterAt) {
+        if (counter > 200 + this.enterAt) {
             scene.remove(this);
         }
     }
@@ -51,6 +122,73 @@ const testScreen = new (class {
     dx = 0;
 
     createSprite() {
+        return new Animation(
+            {
+                type: "group",
+                items: [
+                    {
+                        type: "sequence",
+                        items: [
+                            {
+                                type: "group",
+                                items: [
+                                    { type: "set", property: "image", value: "red" },
+                                    { type: "animate", property: "x", from: this.x, to: 20, duration: 20 },
+                                    { type: "set", property: "y", value: this.y },
+                                ]
+                            },
+                            {
+                                type: "group",
+                                items: [
+                                    { type: "set", property: "image", value: "red" },
+                                    { type: "animate", property: "x", from: 20, to: this.x, duration: 20 },
+                                    { type: "set", property: "y", value: this.y },
+                                ]
+                            },
+                            {
+                                type: "wait",
+                                duration: 10
+                            },
+                            {
+                                type: "call",
+                                value: ({ scene, self }) => scene.remove(self)
+                            }
+                        ]
+                    },
+                    {
+                        type: "animate",
+                        property: "rotate",
+                        from: 0,
+                        to: 6.28,
+                        duration: 20,
+                        loop: 50
+                    },
+                    {
+                        type: "animate",
+                        property: "scale",
+                        from: 1,
+                        to: 0,
+                        duration: 40
+
+                    }
+                ]
+            }
+        )
+        /*
+        return new Animation(
+            {
+                type: "group",
+                items: [
+                    { type: "set", property: "image", value: "red" },
+                    { type: "animate", property: "x", from: this.x, to: 20, duration: 20 },
+                    { type: "set", property: "y", value: this.y },
+                    { type: "animate", property: "rotate", from: 6.28, to: 0, duration: 10, loop: 2 },
+                    { type: "animate", property: "scale", from: 1, to: 0, duration: 100 }
+                ]
+            }
+        )
+        */
+        /*
         return new Animation({
             image: "red",
             x: { from: this.x, to: 200, duration: 20 },
@@ -58,6 +196,7 @@ const testScreen = new (class {
             scale: { from: 1, to: 0, duration: 100 },
             rotate: { from: 6.28, to: 0, duration: 10, loop: true }
         });
+        */
     }
 
     enter({ scene }) {
