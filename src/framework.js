@@ -49,7 +49,7 @@ window.onload = () => {
         context.scene.draw(context);
 
         context.counter += 1;
-    }, 50);
+    }, 20);
 };
 
 document.addEventListener("keydown", e => (context.keyboard[e.key] = true));
