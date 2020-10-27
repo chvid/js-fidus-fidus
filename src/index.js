@@ -10,110 +10,105 @@ import TitleGreen from "./graphics/title-green.png";
 import TitleRed from "./graphics/title-red.png";
 import { init, Animation } from "./framework";
 
-const testScreen = new (class {
-    x = 160;
-    y = 50;
-    dx = 0;
+const startScreen = new (class {
+    bigHalo = new Animation(
+        Animation.group(
+            Animation.set("image", "bigHalo"),
+            Animation.set("x", 125),
+            Animation.set("y", 568 - 140),
+            Animation.animate("rotate", 6.28, 0, 4000, Number.POSITIVE_INFINITY)
+        )
+    );
 
-    createSprite() {
-        return new Animation(
-            Animation.group(
-                Animation.sequence(
-                    Animation.group(Animation.set("image", "red"), Animation.animate("x", this.x, 20, 20), Animation.set("y", this.y)),
-                    Animation.group(Animation.set("image", "redFalling"), Animation.animate("x", 20, this.x, 20)),
-                    Animation.wait(10),
-                    Animation.call(({ scene, self }) => scene.remove(self))
-                ),
-                Animation.animate("rotate", 0, 6.28, 10, 5),
-                Animation.animate("scale", 1, 0.3, 40),
-                Animation.animate("alpha", 1, 0, 40)
+    bigRed = new Animation(
+        Animation.group(
+            Animation.set("image", "bigRed"),
+            Animation.set("x", 230),
+            Animation.set("y", 568 - 270),
+            Animation.sequence(
+                Animation.animate("scale", 1, 2, 5),
+                Animation.animate("scale", 2, 1, 10)
             )
-        );
-    }
+        )
+    );
+
+    bigPurple = new Animation(
+        Animation.group(
+            Animation.set("image", "bigPurple"),
+            Animation.set("x", 125),
+            Animation.set("y", 568 - 140),
+            Animation.sequence(
+                Animation.animate("scale", 1, 2, 5),
+                Animation.animate("scale", 2, 1, 10)
+            )
+       )
+    );
+
+    bigBlack = new Animation(
+        Animation.group(
+            Animation.set("image", "bigBlack"),
+            Animation.set("x", 80),
+            Animation.set("y", 568 - 300),
+            Animation.sequence(
+                Animation.animate("scale", 1, 2, 5),
+                Animation.animate("scale", 2, 1, 10)
+            )
+        )
+    );
+
+    titleRed = new Animation(
+        Animation.group(
+            Animation.set("image", "titleRed"),
+            Animation.set("x", 140),
+            Animation.set("y", 568 - 504),
+            Animation.sequence(
+                Animation.animate("scale", 1, 2, 5),
+                Animation.animate("scale", 2, 1.4, 10)
+            )
+        )
+    );
+
+    titleGreen = new Animation(
+        Animation.group(
+            Animation.set("image", "titleGreen"),
+            Animation.set("x", 180),
+            Animation.set("y", 568 - 414),
+            Animation.sequence(
+                Animation.animate("scale", 1, 2, 5),
+                Animation.animate("scale", 2, 1.4, 10)
+            )
+        )
+    )
 
     enter({ scene }) {
-        scene.add(this.createSprite());
-        scene.add(new Animation(
-            Animation.group(
-                Animation.set("image", "bigHalo"),
-                Animation.set("x", 125),
-                Animation.set("y", 568 - 140),
-                Animation.animate("rotate", 6.28, 0, 4000, Number.POSITIVE_INFINITY)
-            )
-        ));
-        scene.add(new Animation(
-            Animation.group(
-                Animation.set("image", "bigRed"),
-                Animation.set("x", 230),
-                Animation.set("y", 568 - 270),
-                Animation.sequence(
-                    Animation.animate("scale", 1, 2, 5),
-                    Animation.animate("scale", 2, 1, 10)
-                )
-            )
-        ));
-        scene.add(new Animation(
-            Animation.group(
-                Animation.set("image", "bigPurple"),
-                Animation.set("x", 125),
-                Animation.set("y", 568 - 140),
-                Animation.sequence(
-                    Animation.animate("scale", 1, 2, 5),
-                    Animation.animate("scale", 2, 1, 10)
-                )
-           )
-        ));
-        scene.add(new Animation(
-            Animation.group(
-                Animation.set("image", "bigBlack"),
-                Animation.set("x", 80),
-                Animation.set("y", 568 - 300),
-                Animation.sequence(
-                    Animation.animate("scale", 1, 2, 5),
-                    Animation.animate("scale", 2, 1, 10)
-                )
-            )
-        ));
-        scene.add(new Animation(
-            Animation.group(
-                Animation.set("image", "titleRed"),
-                Animation.set("x", 140),
-                Animation.set("y", 568 - 504),
-                Animation.sequence(
-                    Animation.animate("scale", 1, 2, 5),
-                    Animation.animate("scale", 2, 1.4, 10)
-                )
-            )
-        ));
-        scene.add(new Animation(
-            Animation.group(
-                Animation.set("image", "titleGreen"),
-                Animation.set("x", 180),
-                Animation.set("y", 568 - 414),
-                Animation.sequence(
-                    Animation.animate("scale", 1, 2, 5),
-                    Animation.animate("scale", 2, 1.4, 10)
-                )
-            )
-        ));
+        scene.add(this.bigHalo);
+        scene.add(this.bigRed);
+        scene.add(this.bigPurple);
+        scene.add(this.bigBlack);
+        scene.add(this.titleRed);
+        scene.add(this.titleGreen);
     }
 
-    move({ keyboard, scene }) {
-        if (keyboard["ArrowRight"]) this.dx += 1;
-        if (keyboard["ArrowLeft"]) this.dx -= 1;
-        if (keyboard["ArrowDown"]) this.y += 1;
-        if (keyboard["ArrowUp"]) this.y -= 1;
+    move({ keyboard, show }) {
         if (keyboard[" "]) {
+            show(nextScreen);
             scene.add(this.createSprite());
         }
-        this.x += this.dx;
+    }
+
+    exit({scene}) {
+        scene.remove(this.titleGreen);
+        scene.remove(this.titleRed);
     }
 
     draw({ images }) {
         images.draw({ image: "background", x: 160, y: 284 })
-        images.draw({ image: "green", x: this.x, y: this.y, rotate: this.dx * 0.1 });
     }
 })();
+
+const nextScreen = {
+
+}
 
 init({
     graphics: {
@@ -139,5 +134,5 @@ init({
         titleRed: { source: TitleRed, scale: 0.5 },
         titleGreen: { source: TitleGreen, scale: 0.5 }
     },
-    start: testScreen
+    start: startScreen
 });
