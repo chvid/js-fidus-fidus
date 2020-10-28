@@ -1,6 +1,6 @@
 import { images } from "./images";
 import { scene } from "./scene";
-import { Sprite } from "./sprite"
+import { Sprite } from "./sprite";
 
 export { Sprite };
 
