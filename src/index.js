@@ -8,77 +8,53 @@ import BigRed from "./graphics/big-red.png";
 import BigHalo from "./graphics/big-halo.png";
 import TitleGreen from "./graphics/title-green.png";
 import TitleRed from "./graphics/title-red.png";
-import { init, Animation } from "./framework";
+import { init, Sprite } from "./framework";
+import * as Script from "./script";
 
 const startScreen = new (class {
-    bigHalo = new Animation(
-        Animation.group(
-            Animation.set("image", "bigHalo"),
-            Animation.set("x", 125),
-            Animation.set("y", 568 - 140),
-            Animation.animate("rotate", 6.28, 0, 4000, Number.POSITIVE_INFINITY)
-        )
-    );
+    bigHalo = new Sprite({
+        x: 125, y: 568 - 140, image: "bigHalo", script: Script.animate("rotate", 6.28, 0, 5000, Number.POSITIVE_INFINITY)
+    });
 
-    bigRed = new Animation(
-        Animation.group(
-            Animation.set("image", "bigRed"),
-            Animation.set("x", 230),
-            Animation.set("y", 568 - 270),
-            Animation.sequence(
-                Animation.animate("scale", 1, 2, 5),
-                Animation.animate("scale", 2, 1, 10)
-            )
+    bigRed = new Sprite({
+        x: 230, y: 568 - 270, image: "bigRed", 
+        script: Script.sequence(
+            Script.animate("scale", 1, 2, 5),
+            Script.animate("scale", 2, 1, 10)
         )
-    );
+    });
 
-    bigPurple = new Animation(
-        Animation.group(
-            Animation.set("image", "bigPurple"),
-            Animation.set("x", 125),
-            Animation.set("y", 568 - 140),
-            Animation.sequence(
-                Animation.animate("scale", 1, 2, 5),
-                Animation.animate("scale", 2, 1, 10)
-            )
-       )
-    );
-
-    bigBlack = new Animation(
-        Animation.group(
-            Animation.set("image", "bigBlack"),
-            Animation.set("x", 80),
-            Animation.set("y", 568 - 300),
-            Animation.sequence(
-                Animation.animate("scale", 1, 2, 5),
-                Animation.animate("scale", 2, 1, 10)
-            )
+    bigPurple = new Sprite({
+        x: 125, y: 568 - 140, image: "bigPurple", 
+        script: Script.sequence(
+            Script.animate("scale", 1, 2, 5),
+            Script.animate("scale", 2, 1, 10)
         )
-    );
+    });
 
-    titleRed = new Animation(
-        Animation.group(
-            Animation.set("image", "titleRed"),
-            Animation.set("x", 140),
-            Animation.set("y", 568 - 504),
-            Animation.sequence(
-                Animation.animate("scale", 1, 2, 5),
-                Animation.animate("scale", 2, 1.4, 10)
-            )
+    bigBlack = new Sprite({
+        x: 80, y: 568 - 300, image: "bigBlack", 
+        script: Script.sequence(
+            Script.animate("scale", 1, 2, 5),
+            Script.animate("scale", 2, 1, 10)
         )
-    );
+    });
 
-    titleGreen = new Animation(
-        Animation.group(
-            Animation.set("image", "titleGreen"),
-            Animation.set("x", 180),
-            Animation.set("y", 568 - 414),
-            Animation.sequence(
-                Animation.animate("scale", 1, 2, 5),
-                Animation.animate("scale", 2, 1.4, 10)
-            )
+    titleRed = new Sprite({
+        x: 140, y: 568 - 504, image: "titleRed", 
+        script: Script.sequence(
+            Script.animate("scale", 1, 2, 5),
+            Script.animate("scale", 2, 1.4, 10)
         )
-    )
+    });
+
+    titleGreen = new Sprite({
+        x: 180, y: 568 - 414, image: "titleGreen", 
+        script: Script.sequence(
+            Script.animate("scale", 1, 2, 5),
+            Script.animate("scale", 2, 1.4, 10)
+        )
+    });
 
     enter({ scene }) {
         scene.add(this.bigHalo);
@@ -92,11 +68,10 @@ const startScreen = new (class {
     move({ keyboard, show }) {
         if (keyboard[" "]) {
             show(nextScreen);
-            scene.add(this.createSprite());
         }
     }
 
-    exit({scene}) {
+    exit({ scene }) {
         scene.remove(this.titleGreen);
         scene.remove(this.titleRed);
     }

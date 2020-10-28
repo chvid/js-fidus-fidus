@@ -1,3 +1,5 @@
+import { computeDuration, computeState } from "./script";
+
 const context = {
     // graphics
     // width
@@ -99,6 +101,10 @@ const images = new (class {
     }
 })();
 
+const findZIndex = o => typeof o == "object" && o.zIndex ? o.zIndex : 0;
+
+const sortNodes = nodes => nodes.sort((a, b) => findZIndex(a) - findZIndex(b));
+
 const scene = new (class {
     elements = [];
 
@@ -114,7 +120,7 @@ const scene = new (class {
     }
 
     draw(c) {
-        for (let e of this.elements) if (e.draw) e.draw(c);
+        for (let e of sortNodes(this.elements)) if (e.draw) e.draw(c);
     }
 
     move(c) {
@@ -134,115 +140,43 @@ const scene = new (class {
     }
 })();
 
-export class Animation {
-    static group(...items) {
-        return { type: "group", items };
-    }
+export class Sprite {
+    zIndex = 0;
 
-    static sequence(...items) {
-        return { type: "sequence", items };
-    }
-
-    static set(property, value) {
-        return { type: "set", property, value };
-    }
-
-    static animate(property, from, to, duration, loop = 1) {
-        return { type: "animate", property, from, to, duration, loop };
-    }
-
-    static wait(duration) {
-        return { type: "wait", duration };
-    }
-
-    static call(value) {
-        return { type: "call", value };
-    }
-
-    computed = {};
-
-    constructor(script) {
-        this.script = script;
-    }
-
-    enter({ counter }) {
-        this.enterAt = counter;
-    }
-
-    computeDuration(script) {
-        let result = 0;
-        switch (script.type) {
-            case "sequence":
-                for (let i of script.items) {
-                    result += this.computeDuration(i);
-                }
-                break;
-            case "group":
-                for (let i of script.items) {
-                    result = Math.max(result, this.computeDuration(i));
-                }
-                break;
-            case "animate":
-                if (script.loop) {
-                    result = script.duration * script.loop;
-                } else {
-                    result = script.duration;
-                }
-                break;
-            case "wait":
-                result = script.duration;
-                break;
+    constructor(properties) {
+        for (let i of Object.keys(properties)) {
+            this[i] = properties[i];
         }
-        return result;
-    }
-
-    computeState(context, script, time) {
-        let result = {};
-        switch (script.type) {
-            case "sequence":
-                let pointer = 0;
-                for (let i of script.items) {
-                    let start = pointer;
-                    pointer += this.computeDuration(i);
-                    if (start <= time) {
-                        result = { ...result, ...this.computeState(context, i, time - start) };
-                    }
-                }
-                break;
-            case "group":
-                for (let i of script.items) {
-                    result = { ...result, ...this.computeState(context, i, time) };
-                }
-                break;
-            case "set":
-                result[script.property] = script.value;
-                break;
-            case "animate":
-                let delta = time / script.duration;
-
-                if (script.loop && delta < script.loop) {
-                    delta = delta - Math.floor(delta);
-                } else {
-                    delta = Math.min(1, delta);
-                }
-
-                result[script.property] = script.to * delta + script.from * (1 - delta);
-                break;
-            case "call":
-                if (time == 0) script.value(context);
-                break;
-            case "wait":
-                break;
-        }
-        return result;
     }
 
     move({ counter }) {
-        this.computed = this.computeState({ self: this, ...arguments[0] }, this.script, counter - this.enterAt);
+        if (this.script) {
+            if (this.scriptAddedAt === undefined) {
+                this.scriptAddedAt = counter;
+            }
+
+            let delta = counter - this.scriptAddedAt;
+
+            if (computeDuration(this.script) >= delta) {
+                let computed = computeState(arguments[0], this.script, delta);
+
+                    for (let i of Object.keys(computed)) {
+                    this[i] = computed[i];
+                }
+            } else {
+                this.script = undefined;
+            }
+        }
+
     }
 
     draw({ images }) {
-        images.draw(this.computed);
+        images.draw(this);
+    }
+
+    runScript(script) {
+        this.script = script;
+        this.scriptAddedAt = undefined;
     }
 }
 
