@@ -16,11 +16,7 @@ const startScreen = new (class {
         x: 125,
         y: 568 - 140,
         image: "bigHalo",
-        script: Script.group(
-            Script.animate("scale", 0, 1, 20),
-            Script.animate("alpha", 0, 1, 10),
-            Script.animate("rotate", 6.28, 0, 5000, Number.POSITIVE_INFINITY)
-        )
+        script: Script.group(Script.animate("scale", 0, 1, 20), Script.animate("alpha", 0, 1, 10), Script.animate("rotate", 6.28, 0, 5000, Number.POSITIVE_INFINITY))
     });
 
     bigRed = new Sprite({
@@ -76,7 +72,7 @@ const startScreen = new (class {
     exit() {
         const removeScript = Script.sequence(
             Script.group(Script.animate("scale", 1, 2, 10), Script.animate("alpha", 1, 0, 10)),
-            Script.call(({ scene, self }) => { scene.remove(self) })
+            Script.call(({ scene, self }) => scene.remove(self))
         );
 
         this.bigHalo.runScript(removeScript);
@@ -86,7 +82,7 @@ const startScreen = new (class {
 
         const removeScriptForTitle = Script.sequence(
             Script.group(Script.animate("scale", 1.4, 3, 10), Script.animate("alpha", 1, 0, 10)),
-            Script.call(({ scene, self }) => { scene.remove(self) })
+            Script.call(({ scene, self }) => scene.remove(self))
         );
 
         this.titleRed.runScript(removeScriptForTitle);
