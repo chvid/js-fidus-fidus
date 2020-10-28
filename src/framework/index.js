@@ -1,7 +1,8 @@
 import { images } from "./images";
-import { scene } from "./scene";
+import { scene } from "./scene";
+import { Sprite } from "./sprite"
 
-export { Sprite } from "./sprite";
+export { Sprite };
 
 export const context = {
     // graphics

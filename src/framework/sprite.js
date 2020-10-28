@@ -1,3 +1,5 @@
+import { computeState, computeDuration } from "./script";
+
 export class Sprite {
     zIndex = 0;
 
