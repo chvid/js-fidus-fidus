@@ -101,7 +101,7 @@ const images = new (class {
     }
 })();
 
-const findZIndex = o => typeof o == "object" && o.zIndex ? o.zIndex : 0;
+const findZIndex = o => (typeof o == "object" && o.zIndex ? o.zIndex : 0);
 
 const sortNodes = nodes => nodes.sort((a, b) => findZIndex(a) - findZIndex(b));
 
@@ -160,14 +160,13 @@ export class Sprite {
             if (computeDuration(this.script) >= delta) {
                 let computed = computeState(arguments[0], this.script, delta);
 
-                    for (let i of Object.keys(computed)) {
+                for (let i of Object.keys(computed)) {
                     this[i] = computed[i];
                 }
             } else {
                 this.script = undefined;
             }
         }
-
     }
 
     draw({ images }) {

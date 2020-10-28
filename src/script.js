@@ -2,10 +2,10 @@ export const group = (...items) => ({ type: "group", items });
 export const sequence = (...items) => ({ type: "sequence", items });
 export const set = (property, value) => ({ type: "set", property, value });
 export const animate = (property, from, to, duration, loop = 1) => ({ type: "animate", property, from, to, duration, loop });
-export const wait = (duration) => ({ type: "wait", duration });
-export const call = (value) => ({ type: "call", value });
+export const wait = duration => ({ type: "wait", duration });
+export const call = value => ({ type: "call", value });
 
-export const computeDuration = (script) => {
+export const computeDuration = script => {
     switch (script.type) {
         case "sequence": {
             let result = 0;
@@ -28,7 +28,7 @@ export const computeDuration = (script) => {
         default:
             return 0;
     }
-}
+};
 
 export const computeState = (context, script, time) => {
     switch (script.type) {
@@ -75,5 +75,4 @@ export const computeState = (context, script, time) => {
         case "wait":
             return {};
     }
-}
-
+};

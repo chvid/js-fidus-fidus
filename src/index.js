@@ -13,47 +13,45 @@ import * as Script from "./script";
 
 const startScreen = new (class {
     bigHalo = new Sprite({
-        x: 125, y: 568 - 140, image: "bigHalo", script: Script.animate("rotate", 6.28, 0, 5000, Number.POSITIVE_INFINITY)
+        x: 125,
+        y: 568 - 140,
+        image: "bigHalo",
+        script: Script.animate("rotate", 6.28, 0, 5000, Number.POSITIVE_INFINITY)
     });
 
     bigRed = new Sprite({
-        x: 230, y: 568 - 270, image: "bigRed", 
-        script: Script.sequence(
-            Script.animate("scale", 1, 2, 5),
-            Script.animate("scale", 2, 1, 10)
-        )
+        x: 230,
+        y: 568 - 270,
+        image: "bigRed",
+        script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1, 10))
     });
 
     bigPurple = new Sprite({
-        x: 125, y: 568 - 140, image: "bigPurple", 
-        script: Script.sequence(
-            Script.animate("scale", 1, 2, 5),
-            Script.animate("scale", 2, 1, 10)
-        )
+        x: 125,
+        y: 568 - 140,
+        image: "bigPurple",
+        script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1, 10))
     });
 
     bigBlack = new Sprite({
-        x: 80, y: 568 - 300, image: "bigBlack", 
-        script: Script.sequence(
-            Script.animate("scale", 1, 2, 5),
-            Script.animate("scale", 2, 1, 10)
-        )
+        x: 80,
+        y: 568 - 300,
+        image: "bigBlack",
+        script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1, 10))
     });
 
     titleRed = new Sprite({
-        x: 140, y: 568 - 504, image: "titleRed", 
-        script: Script.sequence(
-            Script.animate("scale", 1, 2, 5),
-            Script.animate("scale", 2, 1.4, 10)
-        )
+        x: 140,
+        y: 568 - 504,
+        image: "titleRed",
+        script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1.4, 10))
     });
 
     titleGreen = new Sprite({
-        x: 180, y: 568 - 414, image: "titleGreen", 
-        script: Script.sequence(
-            Script.animate("scale", 1, 2, 5),
-            Script.animate("scale", 2, 1.4, 10)
-        )
+        x: 180,
+        y: 568 - 414,
+        image: "titleGreen",
+        script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1.4, 10))
     });
 
     enter({ scene }) {
@@ -77,13 +75,11 @@ const startScreen = new (class {
     }
 
     draw({ images }) {
-        images.draw({ image: "background", x: 160, y: 284 })
+        images.draw({ image: "background", x: 160, y: 284 });
     }
 })();
 
-const nextScreen = {
-
-}
+const nextScreen = {};
 
 init({
     graphics: {
