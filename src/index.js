@@ -9,7 +9,7 @@ import BigHalo from "./graphics/big-halo.png";
 import TitleGreen from "./graphics/title-green.png";
 import TitleRed from "./graphics/title-red.png";
 import { init, Sprite } from "./framework";
-import * as Script from "./script";
+import * as Script from "./framework/script";
 
 const startScreen = new (class {
     bigHalo = new Sprite({
