@@ -18,7 +18,7 @@ export class Sprite {
             let delta = counter - this.scriptAddedAt;
 
             if (computeDuration(this.script) >= delta) {
-                let computed = computeState(arguments[0], this.script, delta);
+                let computed = computeState({ ...arguments[0], self: this }, this.script, delta);
 
                 for (let i of Object.keys(computed)) {
                     this[i] = computed[i];

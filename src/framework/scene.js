@@ -30,7 +30,9 @@ export const scene = new (class {
         for (let e of this.elements) if (e.move) e.move(c);
 
         for (let e of this.elementsToRemove) {
-            if (e.exit) e.exit(c);
+            if (e.exit) {
+                e.exit(c);
+            }
             this.elements.splice(this.elements.indexOf(e), 1);
         }
         this.elementsToRemove = [];
