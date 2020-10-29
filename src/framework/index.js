@@ -1,8 +1,8 @@
 import { images } from "./images";
 import { scene } from "./scene";
-import { Sprite } from "./sprite";
+import { Sprite, Label } from "./sprite";
 
-export { Sprite };
+export { Sprite, Label };
 
 export const context = {
     // graphics
@@ -63,7 +63,12 @@ window.onload = () => {
 document.addEventListener("keydown", e => (context.keyboard[e.key] = true));
 document.addEventListener("keyup", e => delete context.keyboard[e.key]);
 
-export const init = ({ graphics, start }) => {
+export const init = ({ graphics, start, scene }) => {
     context.images.init(graphics);
+    if (scene) {
+        for (let name of Object.keys(scene)) {
+            context.scene.add(name, scene[name]);
+        }
+    }
     context.show(start);
 };

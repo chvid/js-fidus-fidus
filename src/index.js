@@ -8,59 +8,48 @@ import BigRed from "./graphics/big-red.png";
 import BigHalo from "./graphics/big-halo.png";
 import TitleGreen from "./graphics/title-green.png";
 import TitleRed from "./graphics/title-red.png";
-import { init, Sprite } from "./framework";
+import { init, Sprite, Label } from "./framework";
 import * as Script from "./framework/script";
 
 const startScreen = new (class {
-    bigHalo = new Sprite({
-        x: 125,
-        y: 568 - 140,
-        image: "bigHalo",
-        script: Script.group(Script.animate("scale", 0, 1, 20), Script.animate("alpha", 0, 1, 10), Script.animate("rotate", 6.28, 0, 5000, Number.POSITIVE_INFINITY))
-    });
-
-    bigRed = new Sprite({
-        x: 230,
-        y: 568 - 270,
-        image: "bigRed",
-        script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1, 10))
-    });
-
-    bigPurple = new Sprite({
-        x: 125,
-        y: 568 - 140,
-        image: "bigPurple",
-        script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1, 10))
-    });
-
-    bigBlack = new Sprite({
-        x: 80,
-        y: 568 - 300,
-        image: "bigBlack",
-        script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1, 10))
-    });
-
-    titleRed = new Sprite({
-        x: 140,
-        y: 568 - 504,
-        image: "titleRed",
-        script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1.4, 10))
-    });
-
-    titleGreen = new Sprite({
-        x: 180,
-        y: 568 - 414,
-        image: "titleGreen",
-        script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1.4, 10))
-    });
-
     enter({ scene }) {
-        scene.add(this.bigHalo);
-        scene.add(this.bigRed);
-        scene.add(this.bigPurple);
-        scene.add(this.bigBlack);
-        scene.add(this.titleRed);
-        scene.add(this.titleGreen);
+        scene.add("bigHalo", new Sprite({
+            x: 125,
+            y: 568 - 140,
+            image: "bigHalo",
+            zIndex: -1,
+            script: Script.group(Script.animate("scale", 0, 1, 20), Script.animate("alpha", 0, 1, 10), Script.animate("rotate", 6.28, 0, 5000, Number.POSITIVE_INFINITY))
+        }));
+        scene.add("bigRed", new Sprite({
+            x: 230,
+            y: 568 - 270,
+            image: "bigRed",
+            script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1, 10))
+        }));
+        scene.add("bigPurple", new Sprite({
+            x: 125,
+            y: 568 - 140,
+            image: "bigPurple",
+            script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1, 10))
+        }));
+        scene.add("bigBlack", new Sprite({
+            x: 80,
+            y: 568 - 300,
+            image: "bigBlack",
+            script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1, 10))
+        }));
+        scene.add("titleRed", new Sprite({
+            x: 140,
+            y: 568 - 504,
+            image: "titleRed",
+            script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1.4, 10))
+        }));
+        scene.add("titleGreen", new Sprite({
+            x: 180,
+            y: 568 - 414,
+            image: "titleGreen",
+            script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1.4, 10))
+        }));
     }
 
     move({ keyboard, show }) {
@@ -69,32 +58,36 @@ const startScreen = new (class {
         }
     }
 
-    exit() {
+    exit({ scene }) {
         const removeScript = Script.sequence(
             Script.group(Script.animate("scale", 1, 2, 10), Script.animate("alpha", 1, 0, 10)),
             Script.call(({ scene, self }) => scene.remove(self))
         );
 
-        this.bigHalo.runScript(removeScript);
-        this.bigRed.runScript(removeScript);
-        this.bigPurple.runScript(removeScript);
-        this.bigBlack.runScript(removeScript);
+        scene.get("bigHalo").runScript(removeScript);
+        scene.get("bigRed").runScript(removeScript);
+        scene.get("bigPurple").runScript(removeScript);
+        scene.get("bigBlack").runScript(removeScript);
 
         const removeScriptForTitle = Script.sequence(
             Script.group(Script.animate("scale", 1.4, 3, 10), Script.animate("alpha", 1, 0, 10)),
             Script.call(({ scene, self }) => scene.remove(self))
         );
 
-        this.titleRed.runScript(removeScriptForTitle);
-        this.titleGreen.runScript(removeScriptForTitle);
+        scene.get("titleRed").runScript(removeScriptForTitle);
+        scene.get("titleGreen").runScript(removeScriptForTitle);
     }
 
-    draw({ images }) {
-        images.draw({ image: "background", x: 160, y: 284 });
-    }
 })();
 
-const nextScreen = {};
+const nextScreen = new class {
+    move({ keyboard, show, scene, counter }) {
+        scene.get("score").text = counter;
+        if (keyboard["Enter"]) {
+            show(startScreen);
+        }
+    }
+};
 
 init({
     graphics: {
@@ -120,5 +113,9 @@ init({
         titleRed: { source: TitleRed, scale: 0.5 },
         titleGreen: { source: TitleGreen, scale: 0.5 }
     },
-    start: startScreen
+    start: startScreen,
+    scene: {
+        score: new Label({ text: "-", x: 200, y: 20 }),
+        background: new Sprite({image: "background", x: 160, y: 284, zIndex: -999})
+    }
 });

@@ -1,8 +1,6 @@
 import { computeState, computeDuration } from "./script";
 
 export class Sprite {
-    zIndex = 0;
-
     constructor(properties) {
         for (let i of Object.keys(properties)) {
             this[i] = properties[i];
@@ -38,3 +36,26 @@ export class Sprite {
         this.scriptAddedAt = undefined;
     }
 }
+
+export class Label {
+    fontFamily = "AvenirNext-Heavy, sans-serif";
+    size = 20;
+    fillStyle = "#000000ff";
+    strokeStyle = "#ffffffaa";
+
+    constructor(properties) {
+        for (let i of Object.keys(properties)) {
+            this[i] = properties[i];
+        }
+    }
+
+    draw({ graphics }) {
+        graphics.font = `${this.size}px ${this.fontFamily}`;
+
+        graphics.fillStyle = this.fillStyle;
+        graphics.fillText(this.text, this.x, this.y);
+        graphics.strokeStyle = this.strokeStyle;
+        graphics.strokeText(this.text, this.x, this.y);
+    }
+}
+
