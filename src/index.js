@@ -70,9 +70,10 @@ const startScreen = new (class {
         );
     }
 
-    move({ keyboard, show }) {
+    move({ keyboard, show, game }) {
         if (keyboard[" "]) {
             show(nextScreen);
+            game.score ++;
         }
     }
 
@@ -131,7 +132,12 @@ init({
     },
     start: startScreen,
     scene: {
-        score: new Label({ text: ({ counter }) => ("" + (counter + 1000000)).substring(2), x: 200, y: 20 }),
+        score: new Label({ text: ({ game }) => ("" + (game.score + 1000000)).substring(2), x: 244, y: 20 }),
+        hiscore: new Label({ text: ({ game }) => ("" + (game.hiscore + 1000000)).substring(2), x: 8, y: 20 }),
         background: new Sprite({ image: "background", x: 160, y: 284, zIndex: -999 })
+    },
+    game: {
+        score: 42,
+        hiscore: 9999
     }
 });
