@@ -58,4 +58,3 @@ export class Label {
         graphics.strokeText(this.text, this.x, this.y);
     }
 }
-

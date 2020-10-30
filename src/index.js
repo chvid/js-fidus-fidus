@@ -13,43 +13,61 @@ import * as Script from "./framework/script";
 
 const startScreen = new (class {
     enter({ scene }) {
-        scene.add("bigHalo", new Sprite({
-            x: 125,
-            y: 568 - 140,
-            image: "bigHalo",
-            zIndex: -1,
-            script: Script.group(Script.animate("scale", 0, 1, 20), Script.animate("alpha", 0, 1, 10), Script.animate("rotate", 6.28, 0, 5000, Number.POSITIVE_INFINITY))
-        }));
-        scene.add("bigRed", new Sprite({
-            x: 230,
-            y: 568 - 270,
-            image: "bigRed",
-            script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1, 10))
-        }));
-        scene.add("bigPurple", new Sprite({
-            x: 125,
-            y: 568 - 140,
-            image: "bigPurple",
-            script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1, 10))
-        }));
-        scene.add("bigBlack", new Sprite({
-            x: 80,
-            y: 568 - 300,
-            image: "bigBlack",
-            script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1, 10))
-        }));
-        scene.add("titleRed", new Sprite({
-            x: 140,
-            y: 568 - 504,
-            image: "titleRed",
-            script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1.4, 10))
-        }));
-        scene.add("titleGreen", new Sprite({
-            x: 180,
-            y: 568 - 414,
-            image: "titleGreen",
-            script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1.4, 10))
-        }));
+        scene.add(
+            "bigHalo",
+            new Sprite({
+                x: 125,
+                y: 568 - 140,
+                image: "bigHalo",
+                zIndex: -1,
+                script: Script.group(Script.animate("scale", 0, 1, 20), Script.animate("alpha", 0, 1, 10), Script.animate("rotate", 6.28, 0, 5000, Number.POSITIVE_INFINITY))
+            })
+        );
+        scene.add(
+            "bigRed",
+            new Sprite({
+                x: 230,
+                y: 568 - 270,
+                image: "bigRed",
+                script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1, 10))
+            })
+        );
+        scene.add(
+            "bigPurple",
+            new Sprite({
+                x: 125,
+                y: 568 - 140,
+                image: "bigPurple",
+                script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1, 10))
+            })
+        );
+        scene.add(
+            "bigBlack",
+            new Sprite({
+                x: 80,
+                y: 568 - 300,
+                image: "bigBlack",
+                script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1, 10))
+            })
+        );
+        scene.add(
+            "titleRed",
+            new Sprite({
+                x: 140,
+                y: 568 - 504,
+                image: "titleRed",
+                script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1.4, 10))
+            })
+        );
+        scene.add(
+            "titleGreen",
+            new Sprite({
+                x: 180,
+                y: 568 - 414,
+                image: "titleGreen",
+                script: Script.sequence(Script.animate("scale", 1, 2, 5), Script.animate("scale", 2, 1.4, 10))
+            })
+        );
     }
 
     move({ keyboard, show }) {
@@ -77,17 +95,16 @@ const startScreen = new (class {
         scene.get("titleRed").runScript(removeScriptForTitle);
         scene.get("titleGreen").runScript(removeScriptForTitle);
     }
-
 })();
 
-const nextScreen = new class {
+const nextScreen = new (class {
     move({ keyboard, show, scene, counter }) {
         scene.get("score").text = counter;
         if (keyboard["Enter"]) {
             show(startScreen);
         }
     }
-};
+})();
 
 init({
     graphics: {
@@ -116,6 +133,6 @@ init({
     start: startScreen,
     scene: {
         score: new Label({ text: "-", x: 200, y: 20 }),
-        background: new Sprite({image: "background", x: 160, y: 284, zIndex: -999})
+        background: new Sprite({ image: "background", x: 160, y: 284, zIndex: -999 })
     }
 });
