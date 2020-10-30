@@ -1,5 +1,7 @@
 import { computeState, computeDuration } from "./script";
 
+const readProperty = (property, context) => (typeof property == "function" ? property(context) : property);
+
 export class Sprite {
     constructor(properties) {
         for (let i of Object.keys(properties)) {
@@ -50,11 +52,12 @@ export class Label {
     }
 
     draw({ graphics }) {
-        graphics.font = `${this.size}px ${this.fontFamily}`;
+        let text = readProperty(this.text, arguments[0]);
 
+        graphics.font = `${this.size}px ${this.fontFamily}`;
         graphics.fillStyle = this.fillStyle;
-        graphics.fillText(this.text, this.x, this.y);
+        graphics.fillText(text, this.x, this.y);
         graphics.strokeStyle = this.strokeStyle;
-        graphics.strokeText(this.text, this.x, this.y);
+        graphics.strokeText(text, this.x, this.y);
     }
 }

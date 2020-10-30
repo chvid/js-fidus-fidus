@@ -98,8 +98,7 @@ const startScreen = new (class {
 })();
 
 const nextScreen = new (class {
-    move({ keyboard, show, scene, counter }) {
-        scene.get("score").text = counter;
+    move({ keyboard, show }) {
         if (keyboard["Enter"]) {
             show(startScreen);
         }
@@ -132,7 +131,7 @@ init({
     },
     start: startScreen,
     scene: {
-        score: new Label({ text: "-", x: 200, y: 20 }),
+        score: new Label({ text: ({ counter }) => ("" + (counter + 1000000)).substring(2), x: 200, y: 20 }),
         background: new Sprite({ image: "background", x: 160, y: 284, zIndex: -999 })
     }
 });
