@@ -42,6 +42,10 @@ window.onload = () => {
             }
         }
 
+        if (context.game && context.game.move) {
+            context.game.move(context);
+        }
+
         if (context.screen && context.screen.move) {
             context.screen.move(context);
         }
@@ -49,6 +53,10 @@ window.onload = () => {
         context.scene.move(context);
 
         context.graphics.clearRect(0, 0, context.width, context.height);
+
+        if (context.game && context.game.draw) {
+            context.game.draw(context);
+        }
 
         if (context.screen && context.screen.draw) {
             context.screen.draw(context);
@@ -63,18 +71,13 @@ window.onload = () => {
 document.addEventListener("keydown", e => (context.keyboard[e.key] = true));
 document.addEventListener("keyup", e => delete context.keyboard[e.key]);
 
-export const init = (c) => {
-    context.images.init(c.graphics);
-    if (c.scene) {
-        for (let name of Object.keys(c.scene)) {
-            context.scene.add(name, c.scene[name]);
+export const init = ({graphics, scene, start, game}) => {
+    context.images.init(graphics);
+    if (scene) {
+        for (let name of Object.keys(scene)) {
+            context.scene.add(name, scene[name]);
         }
     }
-    context.show(c.start);
-
-    for (let name of Object.keys(c)) {
-        if (["scene", "graphics", "start"].indexOf(name) < 0) {
-            context[name] = c[name];
-        }
-    }
+    context.show(start);
+    context.game = game;
 };
