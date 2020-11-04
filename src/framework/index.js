@@ -71,7 +71,7 @@ window.onload = () => {
 document.addEventListener("keydown", e => (context.keyboard[e.key] = true));
 document.addEventListener("keyup", e => delete context.keyboard[e.key]);
 
-export const init = ({graphics, scene, start, game}) => {
+export const init = ({ graphics, scene, start, game }) => {
     context.images.init(graphics);
     if (scene) {
         for (let name of Object.keys(scene)) {

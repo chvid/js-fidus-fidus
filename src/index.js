@@ -107,72 +107,42 @@ const nextScreen = new (class {
     }
 })();
 
-const background = new class {
+const background = new (class {
     enter({ scene }) {
         scene.add(new Sprite({ image: "background", x: 160, y: 284, zIndex: -999 }));
     }
 
     move({ scene, width, height }) {
-        if (Math.random() < 0.005) {
+        if (Math.random() < 0.006) {
             let x1 = Math.random() * width * 2 - width / 2;
-            let x2 = Math.random() * width * 2 - width / 2;
+            let x2 = x1 + (Math.random() * width) / 2 - width / 4;
+            let time = Math.round(5 * Math.random() * 20 + 15);
+            let alpha = 0.2 + Math.random() * 0.4;
 
             let cloud = new Sprite({
                 image: "cloud",
+                compositeOperation: "lighter",
                 x: Math.random() * width,
-                y: 50 + height * Math.pow(Math.random(), 0.5),
+                y: 50 + height * Math.pow(Math.random(), 0.75),
+                scale: Math.random() * 0.2 + 0.9,
                 zIndex: -10
             });
 
             cloud.runScript(
                 Script.group(
                     Script.sequence(
-                        Script.animate("alpha", 0, 1, 300),
-                        Script.animate("alpha", 1, 0, 700),
+                        Script.animate("alpha", 0, alpha, time * 3),
+                        Script.animate("alpha", alpha, 0, time * 7),
                         Script.call(({ self, scene }) => scene.remove(self))
                     ),
-                    Script.animate(
-                        "x", x1, x2, 1000
-                    )
+                    Script.animate("x", x1, x2, 10 * time)
                 )
             );
 
             scene.add(cloud);
         }
-
-
-        /*
-
-        let cloudSprite = ImageRepository.get().sprite("cloud")
-        cloudSprite.alpha = 0
-        cloudSprite.blendMode = SKBlendMode.Screen
-        cloudSprite.position = CGPointMake(Utils.random() * scene!.size.width, -50 + scene!.size.height * pow(Utils.random(), 0.5))
-
-        cloudSprite.xScale *= 0.9 + 0.2 * Utils.random()
-        cloudSprite.yScale *= 0.9 + 0.2 * Utils.random()
-
-        let time = Double(Utils.random()) * 20 + 15
-        let deltaX = Utils.random() * 300 - 150
-
-        cloudSprite.runAction(SKAction.sequence([
-            SKAction.group([
-                SKAction.moveBy(CGVectorMake(deltaX * 0.2, 0), duration: time * 0.2),
-                SKAction.fadeAlphaTo(0.4 + Utils.random() * 0.4, duration: time * 0.2)
-            ]),
-            SKAction.moveBy(CGVectorMake(deltaX * 0.6, 0), duration: time * 0.6),
-            SKAction.group([
-                SKAction.moveBy(CGVectorMake(deltaX * 0.2, 0), duration: time * 0.2),
-                SKAction.fadeAlphaTo(0, duration: time * 0.2)
-            ]),
-            SKAction.removeFromParent()
-        ]))
-
-        addChild(cloudSprite)
-
-
-        */
     }
-}
+})();
 
 init({
     graphics: {
