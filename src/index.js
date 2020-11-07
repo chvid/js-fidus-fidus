@@ -113,11 +113,11 @@ const background = new (class {
     }
 
     move({ scene, width, height }) {
-        if (Math.random() < 0.006) {
+        if (Math.random() < 0.004) {
             let x1 = Math.random() * width * 2 - width / 2;
             let x2 = x1 + (Math.random() * width) / 2 - width / 4;
-            let time = Math.round(5 * Math.random() * 20 + 15);
-            let alpha = 0.2 + Math.random() * 0.4;
+            let time = Math.round(5 * Math.random() * 20 + 25);
+            let alpha = 0.1 + Math.random() * 0.3;
 
             let cloud = new Sprite({
                 image: "cloud",
