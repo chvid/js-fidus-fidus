@@ -106,8 +106,8 @@ const gameScreen = new (class {
         scene.add("b", new Sprite({ image: "blue", x: 30 + 52 * 3, y: 30 }));
     }
 
-    move({ keyboard, show, counter, scene }) {
-        if (counter % 50 == 0) {
+    move({ keyboard, show, counterSinceEnter, scene }) {
+        if (counterSinceEnter % 50 == 0) {
             scene.get("a").runScript(Script.sequence(Script.set("y", 30), Script.animateBy("y", 52, 30)));
         }
         if (keyboard["Enter"]) {

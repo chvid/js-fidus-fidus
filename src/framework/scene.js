@@ -53,6 +53,9 @@ export const scene = new (class {
     }
 
     get(name) {
+        for (let e of this.elementsToAdd) {
+            if (e.name == name) return e.element;
+        }
         return this.elements[name];
     }
 })();

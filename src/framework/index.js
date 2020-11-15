@@ -22,6 +22,7 @@ window.onload = () => {
     context.width = canvasElement.scrollWidth;
     context.height = canvasElement.scrollHeight;
     context.counter = 0;
+    context.counterSinceEnter = 0;
 
     setInterval(() => {
         if (!context.images.checkLoadComplete()) {
@@ -36,6 +37,7 @@ window.onload = () => {
 
             context.screen = context.nextScreen;
             context.nextScreen = null;
+            context.counterSinceEnter = 0;
 
             if (context.screen && context.screen.enter) {
                 context.screen.enter(context);
@@ -65,6 +67,7 @@ window.onload = () => {
         context.scene.draw(context);
 
         context.counter += 1;
+        context.counterSinceEnter += 1;
     }, 20);
 };
 
