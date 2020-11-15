@@ -11,6 +11,7 @@ import TitleRed from "./graphics/title-red.png";
 import Cloud from "./graphics/cloud.png";
 import { init, Sprite, Label } from "./framework";
 import * as Script from "./framework/script";
+import { scene } from "./framework/scene";
 
 const startScreen = new (class {
     enter({ scene }) {
@@ -73,7 +74,7 @@ const startScreen = new (class {
 
     move({ keyboard, show, game }) {
         if (keyboard[" "]) {
-            show(nextScreen);
+            show(gameScreen);
             game.score++;
         }
     }
@@ -99,8 +100,16 @@ const startScreen = new (class {
     }
 })();
 
-const nextScreen = new (class {
-    move({ keyboard, show }) {
+const gameScreen = new (class {
+    enter({ scene }) {
+        scene.add("a", new Sprite({ image: "red", x: 30 + 52 * 2, y: 30 }));
+        scene.add("b", new Sprite({ image: "blue", x: 30 + 52 * 3, y: 30 }));
+    }
+
+    move({ keyboard, show, counter, scene }) {
+        if (counter % 50 == 0) {
+            scene.get("a").runScript(Script.sequence(Script.set("y", 30), Script.animateBy("y", 52, 30)));
+        }
         if (keyboard["Enter"]) {
             show(startScreen);
         }

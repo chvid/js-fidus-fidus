@@ -13,6 +13,7 @@ export class Sprite {
         if (this.script) {
             if (this.scriptAddedAt === undefined) {
                 this.scriptAddedAt = counter;
+                this.scriptAddedAtState = { ... this };
             }
 
             let delta = counter - this.scriptAddedAt;
@@ -21,7 +22,9 @@ export class Sprite {
                 let computed = computeState({ ...arguments[0], self: this }, this.script, delta);
 
                 for (let i of Object.keys(computed)) {
-                    this[i] = computed[i];
+                    let value = computed[i].set !== undefined ? computed[i].set : this.scriptAddedAtState[i];
+                    value = computed[i].delta !== undefined ? value + computed[i].delta : value;
+                    this[i] = value;
                 }
             } else {
                 this.script = undefined;
