@@ -108,7 +108,7 @@ const gameScreen = new (class {
 
     move({ keyboard, show, counterSinceEnter, scene }) {
         if (counterSinceEnter % 50 == 0) {
-            scene.get("a").runScript(Script.sequence(Script.set("y", 30), Script.animateBy("y", 52, 30)));
+            scene.get("a").runScript(Script.sequence(Script.set("y", 30), Script.animateBy("y", 52, 30, 1, "sigmoid")));
         }
         if (keyboard["Enter"]) {
             show(startScreen);

@@ -4,7 +4,10 @@ export const set = (property, value) => ({ type: "set", property, value });
 export const animate = (property, from, to, duration, loop = 1) => ({ type: "animate", property, from, to, duration, loop });
 export const wait = duration => ({ type: "wait", duration });
 export const call = value => ({ type: "call", value });
-export const animateBy = (property, delta, duration, loop = 1) => ({ type: "animateBy", property, delta, duration, loop });
+export const animateBy = (property, delta, duration, loop = 1, shape = "linear") => ({ type: "animateBy", property, delta, duration, loop, shape });
+
+const sigmoidFactor = 10;
+const sigmoid = x => ((1 / (1 + Math.exp(sigmoidFactor * (x - 0.5)))) - (1 / (1 + Math.exp(sigmoidFactor * -0.5)))) / (1 - 2 * (1 / (1 + Math.exp(sigmoidFactor * -0.5))));
 
 export const computeDuration = script => {
     switch (script.type) {
@@ -69,6 +72,12 @@ export const computeState = (context, script, time) => {
                 delta = Math.min(1, delta);
             }
 
+            if (script.shape == "linear") {
+
+            } else if (script.shape == "sigmoid") {
+                delta = sigmoid(delta);
+            }
+
             result[script.property] = { ...result[script.property], set: script.to * delta + script.from * (1 - delta) };
             return result;
         }
@@ -80,6 +89,12 @@ export const computeState = (context, script, time) => {
                 delta = delta - Math.floor(delta);
             } else {
                 delta = Math.min(1, delta);
+            }
+
+            if (script.shape == "linear") {
+
+            } else if (script.shape == "sigmoid") {
+                delta = sigmoid(delta);
             }
 
             let current = result[script.property] ? (result[script.property].delta ? result[script.property].delta : 0) : 0;
