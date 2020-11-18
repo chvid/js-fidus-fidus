@@ -13,7 +13,7 @@ export class Sprite {
         if (this.script) {
             if (this.scriptAddedAt === undefined) {
                 this.scriptAddedAt = counter;
-                this.scriptAddedAtState = { ... this };
+                this.scriptAddedAtState = { ...this };
             }
 
             let delta = counter - this.scriptAddedAt;

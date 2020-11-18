@@ -7,7 +7,7 @@ export const call = value => ({ type: "call", value });
 export const animateBy = (property, delta, duration, loop = 1, shape = "linear") => ({ type: "animateBy", property, delta, duration, loop, shape });
 
 const sigmoidFactor = 10;
-const sigmoid = x => ((1 / (1 + Math.exp(sigmoidFactor * (x - 0.5)))) - (1 / (1 + Math.exp(sigmoidFactor * -0.5)))) / (1 - 2 * (1 / (1 + Math.exp(sigmoidFactor * -0.5))));
+const sigmoid = x => (1 / (1 + Math.exp(sigmoidFactor * (x - 0.5))) - 1 / (1 + Math.exp(sigmoidFactor * -0.5))) / (1 - 2 * (1 / (1 + Math.exp(sigmoidFactor * -0.5))));
 
 export const computeDuration = script => {
     switch (script.type) {
@@ -73,7 +73,6 @@ export const computeState = (context, script, time) => {
             }
 
             if (script.shape == "linear") {
-
             } else if (script.shape == "sigmoid") {
                 delta = sigmoid(delta);
             }
@@ -92,7 +91,6 @@ export const computeState = (context, script, time) => {
             }
 
             if (script.shape == "linear") {
-
             } else if (script.shape == "sigmoid") {
                 delta = sigmoid(delta);
             }
