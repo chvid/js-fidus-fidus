@@ -102,13 +102,17 @@ const startScreen = new (class {
 
 const gameScreen = new (class {
     enter({ scene }) {
-        scene.add("a", new Sprite({ image: "red", x: 30 + 52 * 2, y: 30 }));
-        scene.add("b", new Sprite({ image: "blue", x: 30 + 52 * 3, y: 30 }));
+        scene.add("a", new Sprite({ image: "red", x: 30 + 52 * 2, y: 24 }));
+        scene.add("b", new Sprite({ image: "blue", x: 30 + 52 * 3, y: 24 }));
     }
 
     move({ keyboard, show, counterSinceEnter, scene }) {
         if (counterSinceEnter % 50 == 0) {
-            scene.get("a").runScript(Script.sequence(Script.set("y", 30), Script.animateBy("y", 52, 30, 1, "sigmoid")));
+            if (Math.floor(counterSinceEnter / 500) % 2 == 0) {
+                scene.get("a").runScript(Script.sequence(Script.animateBy("y", 52, 10, 1, "sigmoid")));
+            } else {
+                scene.get("a").runScript(Script.sequence(Script.animateBy("y", -52, 10, 1, "sigmoid")));
+            }
         }
         if (keyboard["Enter"]) {
             show(startScreen);
