@@ -71,8 +71,8 @@ const startScreen = new (class {
         );
     }
 
-    move({ keyboard, show, game }) {
-        if (keyboard[" "]) {
+    move({ keyboard, show, game, counter }) {
+        if (keyboard[" "] === counter) {
             show(gameScreen);
             game.score++;
         }
@@ -105,21 +105,18 @@ const gameScreen = new (class {
         scene.add("b", new Sprite({ image: "blue", x: 30 + 52 * 3, y: 24 }));
     }
 
-    move({ keyboard, show, counterSinceEnter, scene }) {
-        if (keyboard["ArrowUp"]) {
-            if (this.lastPress === undefined) this.lastPress = counterSinceEnter;
-            if ((counterSinceEnter - this.lastPress) % 20 == 0) {
-                scene.get("a").runScript(Script.sequence(Script.animateBy("y", -52, 10, 1, "sigmoid")));
-            }
-        } else if (keyboard["ArrowDown"]) {
-            if (this.lastPress === undefined) this.lastPress = counterSinceEnter;
-            if ((counterSinceEnter - this.lastPress) % 20 == 0) {
-                scene.get("a").runScript(Script.sequence(Script.animateBy("y", 52, 10, 1, "sigmoid")));
-            }
-        } else {
-            this.lastPress = undefined;
+    exit({ scene }) {
+        scene.remove("a");
+        scene.remove("b");
+    }
+
+    move({ keyboard, show, scene, counter }) {
+        if ((keyboard["ArrowUp"] - counter) % 20 === 0) {
+            scene.get("a").runScript(Script.sequence(Script.animateBy("y", -52, 10, 1, "sigmoid")));
+        } else if ((keyboard["ArrowDown"] - counter) % 20 === 0) {
+            scene.get("a").runScript(Script.sequence(Script.animateBy("y", 52, 10, 1, "sigmoid")));
         }
-        if (keyboard["Enter"]) {
+        if (keyboard[" "] === counter) {
             show(startScreen);
         }
     }

@@ -71,7 +71,7 @@ window.onload = () => {
     }, 20);
 };
 
-document.addEventListener("keydown", e => (context.keyboard[e.key] = true));
+document.addEventListener("keydown", e => (context.keyboard[e.key] = context.keyboard[e.key] === undefined ? context.counter : context.keyboard[e.key]));
 document.addEventListener("keyup", e => delete context.keyboard[e.key]);
 
 export const init = ({ graphics, scene, start, game }) => {
