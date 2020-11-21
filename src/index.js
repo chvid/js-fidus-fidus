@@ -11,7 +11,6 @@ import TitleRed from "./graphics/title-red.png";
 import Cloud from "./graphics/cloud.png";
 import { init, Sprite, Label } from "./framework";
 import * as Script from "./framework/script";
-import { scene } from "./framework/scene";
 
 const startScreen = new (class {
     enter({ scene }) {
@@ -107,12 +106,18 @@ const gameScreen = new (class {
     }
 
     move({ keyboard, show, counterSinceEnter, scene }) {
-        if (counterSinceEnter % 50 == 0) {
-            if (Math.floor(counterSinceEnter / 500) % 2 == 0) {
-                scene.get("a").runScript(Script.sequence(Script.animateBy("y", 52, 10, 1, "sigmoid")));
-            } else {
+        if (keyboard["ArrowUp"]) {
+            if (this.lastPress === undefined) this.lastPress = counterSinceEnter;
+            if ((counterSinceEnter - this.lastPress) % 20 == 0) {
                 scene.get("a").runScript(Script.sequence(Script.animateBy("y", -52, 10, 1, "sigmoid")));
             }
+        } else if (keyboard["ArrowDown"]) {
+            if (this.lastPress === undefined) this.lastPress = counterSinceEnter;
+            if ((counterSinceEnter - this.lastPress) % 20 == 0) {
+                scene.get("a").runScript(Script.sequence(Script.animateBy("y", 52, 10, 1, "sigmoid")));
+            }
+        } else {
+            this.lastPress = undefined;
         }
         if (keyboard["Enter"]) {
             show(startScreen);
