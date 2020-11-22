@@ -3,31 +3,38 @@ import { computeState, computeDuration } from "./script";
 const readProperty = (property, context) => (typeof property == "function" ? property(context) : property);
 
 export class Sprite {
+
     constructor(properties) {
         for (let i of Object.keys(properties)) {
             this[i] = properties[i];
         }
+        this.scripts = [];
+        if (this.script) {
+            this.runScript(this.script);
+            delete this.script;
+        }
     }
 
     move({ counter }) {
-        if (this.script) {
-            if (this.scriptAddedAt === undefined) {
-                this.scriptAddedAt = counter;
-                this.scriptAddedAtState = { ...this };
+        for (let s of this.scripts) {
+            if (s.addedAt === undefined) {
+                s.addedAt = counter;
+                s.deltas = { };
             }
 
-            let delta = counter - this.scriptAddedAt;
+            let delta = counter - s.addedAt;
 
-            if (computeDuration(this.script) >= delta) {
-                let computed = computeState({ ...arguments[0], self: this }, this.script, delta);
+            if (computeDuration(s.script) >= delta) {
+                let computed = computeState({ ...arguments[0], self: this }, s.script, delta);
 
                 for (let i of Object.keys(computed)) {
-                    let value = computed[i].set !== undefined ? computed[i].set : this.scriptAddedAtState[i];
-                    value = computed[i].delta !== undefined ? value + computed[i].delta : value;
+                    let oldDelta = s.deltas[i] ? s.deltas[i] : 0;
+                    let value = computed[i].set !== undefined ? computed[i].set : this[i];
+                    let delta = computed[i].delta ? computed[i].delta : 0;
+                    value = value + delta - oldDelta;
                     this[i] = value;
+                    s.deltas[i] = delta;
                 }
-            } else {
-                this.script = undefined;
             }
         }
     }
@@ -37,8 +44,7 @@ export class Sprite {
     }
 
     runScript(script) {
-        this.script = script;
-        this.scriptAddedAt = undefined;
+        this.scripts.push({ script });
     }
 }
 
