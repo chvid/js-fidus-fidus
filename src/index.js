@@ -99,6 +99,9 @@ const startScreen = new (class {
     }
 })();
 
+const checkKeyboard = (keyboardCounter, counter, interval, delay) =>
+    ((counter-keyboardCounter) === 0 || (((counter - keyboardCounter) % interval) == 0 && (counter-keyboardCounter) >= delay));
+
 const gameScreen = new (class {
     enter({ scene }) {
         scene.add("a", new Sprite({ image: "red", x: 30 + 52 * 2, y: 24 }));
@@ -111,9 +114,9 @@ const gameScreen = new (class {
     }
 
     move({ keyboard, show, scene, counter }) {
-        if ((keyboard["ArrowUp"] - counter) % 20 === 0) {
+        if (checkKeyboard(keyboard["ArrowUp"], counter, 10, 30)) {
             scene.get("a").runScript(Script.sequence(Script.animateBy("y", -52, 10, 1, "sigmoid")));
-        } else if ((keyboard["ArrowDown"] - counter) % 20 === 0) {
+        } else if (checkKeyboard(keyboard["ArrowDown"], counter, 10, 30)) {
             scene.get("a").runScript(Script.sequence(Script.animateBy("y", 52, 10, 1, "sigmoid")));
         }
         if (keyboard[" "] === counter) {
