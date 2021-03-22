@@ -12,6 +12,44 @@ import Cloud from "./graphics/cloud.png";
 import { init, Sprite, Label } from "./framework";
 import * as Script from "./framework/script";
 
+class Matrix {
+    constructor({ width, height }) {
+        this.width = width;
+        this.height = height;
+        this.entries = [];
+        for (let y = 0; y < height; y++) {
+            this.entries[y] = [];
+            for (let x = 0; x < width; x++) {
+                this.entries[y][x] = { value: null, x, y };
+            }
+        }
+    }
+
+    move({ add, remove }) {
+        for (let line of this.entries) {
+            for (let e of line) {
+                if (e.newValue !== undefined) {
+                    if (e.sprite) {
+                        remove(e.sprite);
+                        e.sprite = undefined;
+                    }
+                    e.value = e.newValue;
+                    e.newValue = undefined;
+                    e.sprite = add(e);
+                }
+            }
+        }
+    }
+
+    get({ x, y }) {
+        return this.entries[y][x].value;
+    }
+
+    set({ x, y, value }) {
+        this.entries[y][x] = { ...this.entries[y][x], newValue: value };
+    }
+}
+
 const startScreen = new (class {
     enter({ scene }) {
         scene.add(
@@ -100,28 +138,68 @@ const startScreen = new (class {
 })();
 
 const checkKeyboard = (keyboardCounter, counter, interval, delay) =>
-    ((counter-keyboardCounter) === 0 || (((counter - keyboardCounter) % interval) == 0 && (counter-keyboardCounter) >= delay));
+    ((counter - keyboardCounter) === 0 || (((counter - keyboardCounter) % interval) == 0 && (counter - keyboardCounter) >= delay));
 
 const gameScreen = new (class {
-    enter({ scene }) {
-        scene.add("a", new Sprite({ image: "red", x: 30 + 52 * 2, y: 24 }));
-        scene.add("b", new Sprite({ image: "blue", x: 30 + 52 * 3, y: 24 }));
+    enter({ scene, game }) {
+        game.playerBeanA = {
+            x: 2, y: 0, sprite: new Sprite({ image: "red", x: 30 + 52 * 2, y: 24 })
+        };
+        game.playerBeanB = {
+            x: 3, y: 0, sprite: new Sprite({ image: "blue", x: 30 + 52 * 3, y: 24 })
+        };
+        scene.add(game.playerBeanA.sprite);
+        scene.add(game.playerBeanB.sprite);
+        game.matrix.set({ x: 4, y: 10, value: "red" });
+        game.matrix.set({ x: 3, y: 10, value: "yellow" });
     }
 
     exit({ scene }) {
-        scene.remove("a");
-        scene.remove("b");
+        scene.remove(game.playerBeanA.sprite);
+        scene.remove(game.playerBeanB.sprite);
     }
 
-    move({ keyboard, show, scene, counter }) {
-        if (checkKeyboard(keyboard["ArrowUp"], counter, 10, 30)) {
-            scene.get("a").runScript(Script.sequence(Script.animateBy("y", -52, 10, 1, "sigmoid")));
-        } else if (checkKeyboard(keyboard["ArrowDown"], counter, 10, 30)) {
-            scene.get("a").runScript(Script.sequence(Script.animateBy("y", 52, 10, 1, "sigmoid")));
+    move({ keyboard, show, scene, counter, counterSinceEnter, game }) {
+        const movePlayer = ({ dx = 0, dy = 0 }) => {
+            if (dy) {
+                game.playerBeanA.sprite.runScript(Script.sequence(Script.animateBy("y", 52 * dy, 10, 1, "sigmoid")));
+                game.playerBeanB.sprite.runScript(Script.sequence(Script.animateBy("y", 52 * dy, 10, 1, "sigmoid")));
+                game.playerBeanA.y += dy;
+                game.playerBeanB.y += dy;
+            }
+
+            if (dx) {
+                game.playerBeanA.sprite.runScript(Script.sequence(Script.animateBy("x", 52 * dx, 10, 1, "sigmoid")));
+                game.playerBeanB.sprite.runScript(Script.sequence(Script.animateBy("x", 52 * dx, 10, 1, "sigmoid")));
+                game.playerBeanA.x += dx;
+                game.playerBeanB.x += dx;
+            }
         }
+
+        if (checkKeyboard(keyboard["ArrowUp"], counter, 10, 30)) {
+            movePlayer({ dy: -1 });
+        } else if (checkKeyboard(keyboard["ArrowDown"], counter, 10, 30)) {
+            movePlayer({ dy: 1 });
+        } else if (checkKeyboard(keyboard["ArrowLeft"], counter, 10, 30)) {
+            movePlayer({ dx: -1 });
+        } else if (checkKeyboard(keyboard["ArrowRight"], counter, 10, 30)) {
+            movePlayer({ dx: 1 });
+        }
+
+        if (counterSinceEnter % 30 == 0) {
+            movePlayer({ dy: 1 });
+        }
+
         if (keyboard[" "] === counter) {
             show(startScreen);
         }
+
+        game.matrix.move({
+            add: (e) => {
+                scene.add(new Sprite({ image: e.value, x: 30 + e.x * 52, y: e.y * 52 + 24 }));
+            },
+            remove: (s) => scene.remove(s)
+        })
     }
 })();
 
@@ -195,6 +273,7 @@ init({
     },
     game: {
         score: 42,
-        hiscore: 9999
+        hiscore: 9999,
+        matrix: new Matrix({ width: 6, height: 12 })
     }
 });
