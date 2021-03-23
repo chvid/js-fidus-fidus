@@ -143,49 +143,73 @@ const checkKeyboard = (keyboardCounter, counter, interval, delay) =>
 
 const gameScreen = new (class {
     enter({ scene, game }) {
-        game.playerBeanA = {
-            x: 2, y: 0, sprite: new Sprite({ image: "red", x: 30 + 52 * 2, y: 24 })
+        game.playerBean = {
+            rotate: 0,
+            a: {
+                x: 2, y: 0, sprite: new Sprite({ image: "red", x: 30 + 52 * 2, y: 24 })
+            },
+            b: {
+                x: 3, y: 0, sprite: new Sprite({ image: "blue", x: 30 + 52 * 3, y: 24 })
+            }
         };
-        game.playerBeanB = {
-            x: 3, y: 0, sprite: new Sprite({ image: "blue", x: 30 + 52 * 3, y: 24 })
-        };
-        scene.add(game.playerBeanA.sprite);
-        scene.add(game.playerBeanB.sprite);
+        scene.add(game.playerBean.a.sprite);
+        scene.add(game.playerBean.b.sprite);
         game.matrix.set({ x: 4, y: 10, value: "red" });
         game.matrix.set({ x: 3, y: 10, value: "yellow" });
     }
 
     exit({ scene }) {
-        scene.remove(game.playerBeanA.sprite);
-        scene.remove(game.playerBeanB.sprite);
+        scene.remove(game.playerBean.a.sprite);
+        scene.remove(game.playerBean.b.sprite);
     }
 
     move({ keyboard, show, scene, counter, counterSinceEnter, game }) {
-        const movePlayer = ({ dx, dy }) => {
+        const moveBean = ({ bean, dx, dy }) => {
+            let scripts = [];
             if (dy) {
-                game.playerBeanA.sprite.runScript(Script.sequence(Script.animateBy("y", 52 * dy, 10, 1, "sigmoid")));
-                game.playerBeanB.sprite.runScript(Script.sequence(Script.animateBy("y", 52 * dy, 10, 1, "sigmoid")));
-                game.playerBeanA.y += dy;
-                game.playerBeanB.y += dy;
+                scripts.push(Script.sequence(Script.animateBy("y", 52 * dy, 10, 1, "sigmoid")));
+                bean.y += dy;
             }
 
             if (dx) {
-                game.playerBeanA.sprite.runScript(Script.sequence(Script.animateBy("x", 52 * dx, 10, 1, "sigmoid")));
-                game.playerBeanB.sprite.runScript(Script.sequence(Script.animateBy("x", 52 * dx, 10, 1, "sigmoid")));
-                game.playerBeanA.x += dx;
-                game.playerBeanB.x += dx;
+                scripts.push(Script.sequence(Script.animateBy("x", 52 * dx, 10, 1, "sigmoid")));
+                bean.x += dx;
             }
+            bean.sprite.runScript(Script.group(...scripts));
+        }
+
+        const movePlayer = ({ dx, dy }) => {
+            moveBean({ bean: game.playerBean.a, dx, dy });
+            moveBean({ bean: game.playerBean.b, dx, dy });
         }
 
         const canMovePlayer = ({ dx = 0, dy = 0 }) => {
-            return (game.matrix.get({ x: game.playerBeanA.x + dx, y: game.playerBeanA.y + dy }) == null) &&
-                (game.matrix.get({ x: game.playerBeanB.x + dx, y: game.playerBeanB.y + dy }) == null);
+            return (game.matrix.get({ x: game.playerBean.a.x + dx, y: game.playerBean.a.y + dy }) == null) &&
+                (game.matrix.get({ x: game.playerBean.b.x + dx, y: game.playerBean.b.y + dy }) == null);
         }
 
-        if (checkKeyboard(keyboard["ArrowUp"], counter, 10, 30)) {
-            movePlayer({ dy: -1 });
-        } else if (checkKeyboard(keyboard["ArrowDown"], counter, 10, 30)) {
-            movePlayer({ dy: 1 });
+        const rotatePlayer = (delta) => {
+            switch (delta == 1 ? (game.playerBean.rotate + 1) % 4 : (game.playerBean.rotate + 2) % 4) {
+                case 0:
+                    moveBean({ bean: game.playerBean.b, dx: 1, dy: 1 });
+                    break;
+                case 1:
+                    moveBean({ bean: game.playerBean.b, dx: -1, dy: 1 });
+                    break;
+                case 2:
+                    moveBean({ bean: game.playerBean.b, dx: -1, dy: -1 });
+                    break;
+                case 3:
+                    moveBean({ bean: game.playerBean.b, dx: 1, dy: -1 });
+                    break;
+            }
+            game.playerBean.rotate = delta == 1 ? (game.playerBean.rotate + 1) % 4 : (game.playerBean.rotate + 3) % 4;
+        }
+
+        if (checkKeyboard(keyboard["ArrowDown"], counter, 10, 30)) {
+            rotatePlayer(+1);
+        } else if (checkKeyboard(keyboard["ArrowUp"], counter, 10, 30)) {
+            rotatePlayer(-1);
         } else if (checkKeyboard(keyboard["ArrowLeft"], counter, 10, 30) && canMovePlayer({ dx: -1 })) {
             movePlayer({ dx: -1 });
         } else if (checkKeyboard(keyboard["ArrowRight"], counter, 10, 30) && canMovePlayer({ dx: 1 })) {
@@ -196,18 +220,21 @@ const gameScreen = new (class {
             if (canMovePlayer({ dy: 1 })) {
                 movePlayer({ dy: 1 });
             } else {
-                game.matrix.set({ x: game.playerBeanA.x, y: game.playerBeanA.y, value: game.playerBeanA.sprite.image });
-                game.matrix.set({ x: game.playerBeanB.x, y: game.playerBeanB.y, value: game.playerBeanB.sprite.image });
-                scene.remove(game.playerBeanA.sprite);
-                scene.remove(game.playerBeanB.sprite);
-                game.playerBeanA = {
-                    x: 2, y: 0, sprite: new Sprite({ image: "red", x: 30 + 52 * 2, y: 24 })
+                game.matrix.set({ x: game.playerBean.a.x, y: game.playerBean.a.y, value: game.playerBean.a.sprite.image });
+                game.matrix.set({ x: game.playerBean.b.x, y: game.playerBean.b.y, value: game.playerBean.b.sprite.image });
+                scene.remove(game.playerBean.a.sprite);
+                scene.remove(game.playerBean.b.sprite);
+                game.playerBean = {
+                    a: {
+                        x: 2, y: 0, sprite: new Sprite({ image: "red", x: 30 + 52 * 2, y: 24 })
+                    },
+                    b: {
+                        x: 3, y: 0, sprite: new Sprite({ image: "blue", x: 30 + 52 * 3, y: 24 })
+                    },
+                    rotate: 0
                 };
-                game.playerBeanB = {
-                    x: 3, y: 0, sprite: new Sprite({ image: "blue", x: 30 + 52 * 3, y: 24 })
-                };
-                scene.add(game.playerBeanA.sprite);
-                scene.add(game.playerBeanB.sprite);
+                scene.add(game.playerBean.a.sprite);
+                scene.add(game.playerBean.b.sprite);
             }
         }
 
