@@ -13,10 +13,11 @@ import { init, Sprite, Label } from "./framework";
 import * as Script from "./framework/script";
 
 class Matrix {
-    constructor({ width, height }) {
+    constructor({ width, height, defaultValue }) {
         this.width = width;
         this.height = height;
         this.entries = [];
+        this.defaultValue = defaultValue;
         for (let y = 0; y < height; y++) {
             this.entries[y] = [];
             for (let x = 0; x < width; x++) {
@@ -42,7 +43,7 @@ class Matrix {
     }
 
     get({ x, y }) {
-        return this.entries[y][x].value;
+        return (x >= 0) && (y >= 0) && (x < this.width) && (y < this.height) ? this.entries[y][x].value : this.defaultValue;
     }
 
     set({ x, y, value }) {
@@ -160,7 +161,7 @@ const gameScreen = new (class {
     }
 
     move({ keyboard, show, scene, counter, counterSinceEnter, game }) {
-        const movePlayer = ({ dx = 0, dy = 0 }) => {
+        const movePlayer = ({ dx, dy }) => {
             if (dy) {
                 game.playerBeanA.sprite.runScript(Script.sequence(Script.animateBy("y", 52 * dy, 10, 1, "sigmoid")));
                 game.playerBeanB.sprite.runScript(Script.sequence(Script.animateBy("y", 52 * dy, 10, 1, "sigmoid")));
@@ -176,18 +177,38 @@ const gameScreen = new (class {
             }
         }
 
+        const canMovePlayer = ({ dx = 0, dy = 0 }) => {
+            return (game.matrix.get({ x: game.playerBeanA.x + dx, y: game.playerBeanA.y + dy }) == null) &&
+                (game.matrix.get({ x: game.playerBeanB.x + dx, y: game.playerBeanB.y + dy }) == null);
+        }
+
         if (checkKeyboard(keyboard["ArrowUp"], counter, 10, 30)) {
             movePlayer({ dy: -1 });
         } else if (checkKeyboard(keyboard["ArrowDown"], counter, 10, 30)) {
             movePlayer({ dy: 1 });
-        } else if (checkKeyboard(keyboard["ArrowLeft"], counter, 10, 30)) {
+        } else if (checkKeyboard(keyboard["ArrowLeft"], counter, 10, 30) && canMovePlayer({ dx: -1 })) {
             movePlayer({ dx: -1 });
-        } else if (checkKeyboard(keyboard["ArrowRight"], counter, 10, 30)) {
+        } else if (checkKeyboard(keyboard["ArrowRight"], counter, 10, 30) && canMovePlayer({ dx: 1 })) {
             movePlayer({ dx: 1 });
         }
 
         if (counterSinceEnter % 30 == 0) {
-            movePlayer({ dy: 1 });
+            if (canMovePlayer({ dy: 1 })) {
+                movePlayer({ dy: 1 });
+            } else {
+                game.matrix.set({ x: game.playerBeanA.x, y: game.playerBeanA.y, value: game.playerBeanA.sprite.image });
+                game.matrix.set({ x: game.playerBeanB.x, y: game.playerBeanB.y, value: game.playerBeanB.sprite.image });
+                scene.remove(game.playerBeanA.sprite);
+                scene.remove(game.playerBeanB.sprite);
+                game.playerBeanA = {
+                    x: 2, y: 0, sprite: new Sprite({ image: "red", x: 30 + 52 * 2, y: 24 })
+                };
+                game.playerBeanB = {
+                    x: 3, y: 0, sprite: new Sprite({ image: "blue", x: 30 + 52 * 3, y: 24 })
+                };
+                scene.add(game.playerBeanA.sprite);
+                scene.add(game.playerBeanB.sprite);
+            }
         }
 
         if (keyboard[" "] === counter) {
@@ -195,9 +216,7 @@ const gameScreen = new (class {
         }
 
         game.matrix.move({
-            add: (e) => {
-                scene.add(new Sprite({ image: e.value, x: 30 + e.x * 52, y: e.y * 52 + 24 }));
-            },
+            add: (e) => scene.add(new Sprite({ image: e.value, x: 30 + e.x * 52, y: e.y * 52 + 24 })),
             remove: (s) => scene.remove(s)
         })
     }
@@ -274,6 +293,6 @@ init({
     game: {
         score: 42,
         hiscore: 9999,
-        matrix: new Matrix({ width: 6, height: 12 })
+        matrix: new Matrix({ width: 6, height: 11, defaultValue: "blocked" })
     }
 });
