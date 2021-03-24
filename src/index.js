@@ -183,27 +183,18 @@ const gameScreen = new (class {
             moveBean({ bean: game.playerBean.b, dx, dy });
         }
 
-        const canMovePlayer = ({ dx = 0, dy = 0 }) => {
-            return (game.matrix.get({ x: game.playerBean.a.x + dx, y: game.playerBean.a.y + dy }) == null) &&
-                (game.matrix.get({ x: game.playerBean.b.x + dx, y: game.playerBean.b.y + dy }) == null);
-        }
+        const canMoveBean = ({ dx, dy, bean }) => (game.matrix.get({ x: bean.x + dx, y: bean.y + dy }) == null);
+
+        const canMovePlayer = ({ dx = 0, dy = 0 }) =>
+            canMoveBean({dx, dy, bean: game.playerBean.a}) && canMoveBean({dx, dy, bean: game.playerBean.b});
 
         const rotatePlayer = (delta) => {
-            switch (delta == 1 ? (game.playerBean.rotate + 1) % 4 : (game.playerBean.rotate + 2) % 4) {
-                case 0:
-                    moveBean({ bean: game.playerBean.b, dx: 1, dy: 1 });
-                    break;
-                case 1:
-                    moveBean({ bean: game.playerBean.b, dx: -1, dy: 1 });
-                    break;
-                case 2:
-                    moveBean({ bean: game.playerBean.b, dx: -1, dy: -1 });
-                    break;
-                case 3:
-                    moveBean({ bean: game.playerBean.b, dx: 1, dy: -1 });
-                    break;
+            const rotations = [{dx: 1, dy: 1}, {dx: -1, dy: 1 }, {dx: -1, dy: -1}, {dx: 1, dy: -1}];
+            const rotation = rotations[delta == 1 ? (game.playerBean.rotate + 1) % 4 : (game.playerBean.rotate + 2) % 4];
+            if (canMoveBean({ bean: game.playerBean.b, ... rotation})) {
+                moveBean({ bean: game.playerBean.b, ... rotation});
+                game.playerBean.rotate = delta == 1 ? (game.playerBean.rotate + 1) % 4 : (game.playerBean.rotate + 3) % 4;
             }
-            game.playerBean.rotate = delta == 1 ? (game.playerBean.rotate + 1) % 4 : (game.playerBean.rotate + 3) % 4;
         }
 
         if (checkKeyboard(keyboard["ArrowDown"], counter, 10, 30)) {
