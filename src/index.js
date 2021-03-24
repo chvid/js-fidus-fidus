@@ -26,6 +26,14 @@ class Matrix {
         }
     }
 
+    clear() {
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                this.set({x, y, value: null});
+            }
+        }
+    }
+
     move({ add, remove }) {
         for (let line of this.entries) {
             for (let e of line) {
@@ -36,7 +44,11 @@ class Matrix {
                     }
                     e.value = e.newValue;
                     e.newValue = undefined;
-                    e.sprite = add(e);
+                    if (e.value) {
+                        e.sprite = add(e);
+                    } else {
+                        e.sprite = undefined;
+                    }
                 }
             }
         }
@@ -158,9 +170,10 @@ const gameScreen = new (class {
         game.matrix.set({ x: 3, y: 10, value: "yellow" });
     }
 
-    exit({ scene }) {
+    exit({ scene, game }) {
         scene.remove(game.playerBean.a.sprite);
         scene.remove(game.playerBean.b.sprite);
+        game.matrix.clear();
     }
 
     move({ keyboard, show, scene, counter, counterSinceEnter, game }) {

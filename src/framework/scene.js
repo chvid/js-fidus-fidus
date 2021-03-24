@@ -13,8 +13,10 @@ export const scene = new (class {
     add(elementOrName, element) {
         if (typeof elementOrName == "string") {
             this.elementsToAdd.push({ name: elementOrName, element });
+            return element;
         } else {
             this.elementsToAdd.push({ name: ++key, element: elementOrName });
+            return elementOrName;
         }
     }
 
