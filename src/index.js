@@ -34,7 +34,7 @@ class Matrix {
         }
     }
 
-    move() {
+    move({scene}) {
         for (let line of this.entries) {
             for (let e of line) {
                 if (e.newValue !== undefined && e.sprite) {
