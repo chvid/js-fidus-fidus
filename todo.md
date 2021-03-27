@@ -13,3 +13,7 @@ Concurrent scripts.
 TODO:
 
 - Implement falling beans controlled by player. Two beans rotate left and right.
+
+# 24. Match
+
+- Move matrix into scene

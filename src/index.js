@@ -29,25 +29,28 @@ class Matrix {
     clear() {
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
-                this.set({x, y, value: null});
+                this.set({ x, y, value: null });
             }
         }
     }
 
-    move({ add, remove }) {
+    move() {
+        for (let line of this.entries) {
+            for (let e of line) {
+                if (e.newValue !== undefined && e.sprite) {
+                    scene.remove(e.sprite);
+                    delete e.sprite;
+                }
+            }
+        }
+
         for (let line of this.entries) {
             for (let e of line) {
                 if (e.newValue !== undefined) {
-                    if (e.sprite) {
-                        remove(e.sprite);
-                        e.sprite = undefined;
-                    }
                     e.value = e.newValue;
-                    e.newValue = undefined;
+                    delete e.newValue;
                     if (e.value) {
-                        e.sprite = add(e);
-                    } else {
-                        e.sprite = undefined;
+                        e.sprite = scene.add(new Sprite({ image: e.value, x: 30 + e.x * 52, y: e.y * 52 + 24 }));
                     }
                 }
             }
@@ -166,14 +169,14 @@ const gameScreen = new (class {
         };
         scene.add(game.playerBean.a.sprite);
         scene.add(game.playerBean.b.sprite);
-        game.matrix.set({ x: 4, y: 10, value: "red" });
-        game.matrix.set({ x: 3, y: 10, value: "yellow" });
+        scene.get("matrix").set({ x: 4, y: 10, value: "red" });
+        scene.get("matrix").set({ x: 3, y: 10, value: "yellow" });
     }
 
     exit({ scene, game }) {
         scene.remove(game.playerBean.a.sprite);
         scene.remove(game.playerBean.b.sprite);
-        game.matrix.clear();
+        scene.get("matrix").clear();
     }
 
     move({ keyboard, show, scene, counter, counterSinceEnter, game }) {
@@ -196,16 +199,16 @@ const gameScreen = new (class {
             moveBean({ bean: game.playerBean.b, dx, dy });
         }
 
-        const canMoveBean = ({ dx, dy, bean }) => (game.matrix.get({ x: bean.x + dx, y: bean.y + dy }) == null);
+        const canMoveBean = ({ dx, dy, bean }) => (scene.get("matrix").get({ x: bean.x + dx, y: bean.y + dy }) == null);
 
         const canMovePlayer = ({ dx = 0, dy = 0 }) =>
-            canMoveBean({dx, dy, bean: game.playerBean.a}) && canMoveBean({dx, dy, bean: game.playerBean.b});
+            canMoveBean({ dx, dy, bean: game.playerBean.a }) && canMoveBean({ dx, dy, bean: game.playerBean.b });
 
         const rotatePlayer = (delta) => {
-            const rotations = [{dx: 1, dy: 1}, {dx: -1, dy: 1 }, {dx: -1, dy: -1}, {dx: 1, dy: -1}];
+            const rotations = [{ dx: 1, dy: 1 }, { dx: -1, dy: 1 }, { dx: -1, dy: -1 }, { dx: 1, dy: -1 }];
             const rotation = rotations[delta == 1 ? (game.playerBean.rotate + 1) % 4 : (game.playerBean.rotate + 2) % 4];
-            if (canMoveBean({ bean: game.playerBean.b, ... rotation})) {
-                moveBean({ bean: game.playerBean.b, ... rotation});
+            if (canMoveBean({ bean: game.playerBean.b, ...rotation })) {
+                moveBean({ bean: game.playerBean.b, ...rotation });
                 game.playerBean.rotate = delta == 1 ? (game.playerBean.rotate + 1) % 4 : (game.playerBean.rotate + 3) % 4;
             }
         }
@@ -224,8 +227,8 @@ const gameScreen = new (class {
             if (canMovePlayer({ dy: 1 })) {
                 movePlayer({ dy: 1 });
             } else {
-                game.matrix.set({ x: game.playerBean.a.x, y: game.playerBean.a.y, value: game.playerBean.a.sprite.image });
-                game.matrix.set({ x: game.playerBean.b.x, y: game.playerBean.b.y, value: game.playerBean.b.sprite.image });
+                scene.get("matrix").set({ x: game.playerBean.a.x, y: game.playerBean.a.y, value: game.playerBean.a.sprite.image });
+                scene.get("matrix").set({ x: game.playerBean.b.x, y: game.playerBean.b.y, value: game.playerBean.b.sprite.image });
                 scene.remove(game.playerBean.a.sprite);
                 scene.remove(game.playerBean.b.sprite);
                 game.playerBean = {
@@ -245,11 +248,6 @@ const gameScreen = new (class {
         if (keyboard[" "] === counter) {
             show(startScreen);
         }
-
-        game.matrix.move({
-            add: (e) => scene.add(new Sprite({ image: e.value, x: 30 + e.x * 52, y: e.y * 52 + 24 })),
-            remove: (s) => scene.remove(s)
-        })
     }
 })();
 
@@ -319,11 +317,11 @@ init({
     scene: {
         score: new Label({ text: ({ game }) => ("" + (game.score + 1000000)).substring(2), x: 244, y: 20 }),
         hiscore: new Label({ text: ({ game }) => ("" + (game.hiscore + 1000000)).substring(2), x: 8, y: 20 }),
+        matrix: new Matrix({ width: 6, height: 11, defaultValue: "blocked" }),
         background // new Sprite({ image: "background", x: 160, y: 284, zIndex: -999 })
     },
     game: {
         score: 42,
-        hiscore: 9999,
-        matrix: new Matrix({ width: 6, height: 11, defaultValue: "blocked" })
+        hiscore: 9999
     }
 });
