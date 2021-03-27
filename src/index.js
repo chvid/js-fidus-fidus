@@ -202,15 +202,19 @@ const gameScreen = new (class {
     }
 
     move({ keyboard, show, scene, counter, counterSinceEnter, game }) {
-        const moveBean = ({ bean, dx, dy }) => {
+        const moveBean = ({ bean, dx, dy, faster }) => {
             let scripts = [];
             if (dy) {
-                scripts.push(Script.sequence(Script.animateBy("y", 52 * dy, 10, 1, "sigmoid")));
+                scripts.push(Script.sequence(
+                    faster ? Script.animateBy("y", 52 * dy, 5, 1, "linear") : Script.animateBy("y", 52 * dy, 10, 1, "sigmoid")
+                ));
                 bean.y += dy;
             }
 
             if (dx) {
-                scripts.push(Script.sequence(Script.animateBy("x", 52 * dx, 10, 1, "sigmoid")));
+                scripts.push(Script.sequence(
+                    faster ? Script.animateBy("x", 52 * dx, 5, 1, "linear") : Script.animateBy("x", 52 * dx, 10, 1, "sigmoid")
+                ));
                 bean.x += dx;
             }
             bean.sprite.runScript(Script.group(...scripts));
@@ -245,10 +249,12 @@ const gameScreen = new (class {
             }
         }
 
-        if ((counterSinceEnter % 30 == 0) || ((keyboard[" "] || game.player.beans.length == 1) && (counterSinceEnter % 10 == 0))) {
+        const faster = (keyboard[" "] || game.player.beans.length == 1);
+
+        if ((counterSinceEnter % 30 == 0) || (faster && (counterSinceEnter % 5 == 0))) {
             [...game.player.beans].sort((a, b) => b.y - a.y).forEach(bean => {
                 if (canMoveBean({ bean, dy: 1, dx: 0 })) {
-                    moveBean({ bean, dy: 1, dx: 0 })
+                    moveBean({ bean, dy: 1, dx: 0, faster })
                 } else {
                     scene.get("matrix").set({ x: bean.x, y: bean.y, value: bean.sprite.image });
                     scene.remove(bean.sprite);
