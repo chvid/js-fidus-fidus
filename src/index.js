@@ -34,11 +34,13 @@ class Matrix {
         }
     }
 
-    move({scene}) {
+    move(c) {
         for (let line of this.entries) {
             for (let e of line) {
                 if (e.newValue !== undefined && e.sprite) {
-                    scene.remove(e.sprite);
+                    if (e.sprite.exit) {
+                        e.sprite.exit(c);
+                    }
                     delete e.sprite;
                 }
             }
@@ -50,8 +52,29 @@ class Matrix {
                     e.value = e.newValue;
                     delete e.newValue;
                     if (e.value) {
-                        e.sprite = scene.add(new Sprite({ image: e.value, x: 30 + e.x * 52, y: e.y * 52 + 24 }));
+                        e.sprite = new Sprite({ image: e.value, x: 30 + e.x * 52, y: e.y * 52 + 24 });
+                        if (e.sprite.enter) {
+                             e.sprite.enter(c);
+                        }
                     }
+                }
+            }
+        }
+
+        for (let line of this.entries) {
+            for (let e of line) {
+                if (e.sprite && e.sprite.move) {
+                    e.sprite.move(c);
+                }
+            }
+        }
+    }
+
+    draw(c) {
+        for (let line of this.entries) {
+            for (let e of line) {
+                if (e.sprite && e.sprite.draw) {
+                    e.sprite.draw(c);
                 }
             }
         }
