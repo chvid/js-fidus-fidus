@@ -241,14 +241,16 @@ const gameScreen = new (class {
             }
         }
 
-        if (checkKeyboard(keyboard["ArrowDown"], counter, 10, 30) && game.player.beans.length == 2) {
-            rotatePlayer(+1);
-        } else if (checkKeyboard(keyboard["ArrowUp"], counter, 10, 30) && game.player.beans.length == 2) {
-            rotatePlayer(-1);
-        } else if (checkKeyboard(keyboard["ArrowLeft"], counter, 10, 30) && canMovePlayer({ dx: -1 }) && game.player.beans.length == 2) {
-            movePlayer({ dx: -1 });
-        } else if (checkKeyboard(keyboard["ArrowRight"], counter, 10, 30) && canMovePlayer({ dx: 1 }) && game.player.beans.length == 2) {
-            movePlayer({ dx: 1 });
+        if (game.player.beans.length == 2) {
+            if (checkKeyboard(keyboard["ArrowDown"], counter, 10, 30)) {
+                rotatePlayer(+1);
+            } else if (checkKeyboard(keyboard["ArrowUp"], counter, 10, 30)) {
+                rotatePlayer(-1);
+            } else if (checkKeyboard(keyboard["ArrowLeft"], counter, 10, 30) && canMovePlayer({ dx: -1 })) {
+                movePlayer({ dx: -1 });
+            } else if (checkKeyboard(keyboard["ArrowRight"], counter, 10, 30) && canMovePlayer({ dx: 1 })) {
+                movePlayer({ dx: 1 });
+            }
         }
 
         if ((counterSinceEnter % 30 == 0) || ((keyboard[" "] || game.player.beans.length == 1) && (counterSinceEnter % 10 == 0))) {
