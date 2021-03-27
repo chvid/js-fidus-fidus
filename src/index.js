@@ -191,17 +191,13 @@ const gameScreen = new (class {
                 x: 3, y: 0, sprite: new Sprite({ image: "blue", x: 30 + 52 * 3, y: 24 })
             }]
         };
-        for (let bean of game.player.beans) {
-            scene.add(bean.sprite);
-        }
+        game.player.beans.forEach(bean => scene.add(bean.sprite));
         scene.get("matrix").set({ x: 4, y: 10, value: "red" });
         scene.get("matrix").set({ x: 3, y: 10, value: "yellow" });
     }
 
     exit({ scene, game }) {
-        for (let bean of game.player.beans) {
-            scene.remove(bean.sprite);
-        }
+        game.player.beans.forEach(bean => scene.remove(bean.sprite));
         scene.get("matrix").clear();
     }
 
@@ -220,11 +216,7 @@ const gameScreen = new (class {
             bean.sprite.runScript(Script.group(...scripts));
         }
 
-        const movePlayer = ({ dx, dy }) => {
-            for (let bean of game.player.beans) {
-                moveBean({ bean, dx, dy });
-            }
-        }
+        const movePlayer = ({ dx, dy }) => game.player.beans.forEach(bean => moveBean({ bean, dx, dy }));
 
         const canMoveBean = ({ dx, dy, bean }) => (scene.get("matrix").get({ x: bean.x + dx, y: bean.y + dy }) == null);
 
@@ -272,9 +264,7 @@ const gameScreen = new (class {
                     ],
                     rotate: 0
                 };
-                for (let bean of game.player.beans) {
-                    scene.add(bean.sprite);
-                }
+                game.player.beans.forEach(bean => scene.add(bean.sprite));
             }
         }
 
