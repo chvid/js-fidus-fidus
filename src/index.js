@@ -219,7 +219,7 @@ const gameOverSceen = new (class {
     }
 
     move({ counterSinceEnter, show }) {
-        if (counterSinceEnter > 3 * 100) {
+        if (counterSinceEnter > 3 * 50) {
             show(startScreen);
         }
     }
@@ -303,21 +303,22 @@ const gameScreen = new (class {
                     scene.get("matrix").set(bean);
                     scene.remove(bean.sprite);
                     game.player.beans = game.player.beans.filter(other => other !== bean);
-                    if (bean.y == 0) {
-                        show(gameOverSceen);
-                    }
                 }
             });
 
             if (game.player.beans.length == 0) {
-                game.player = {
-                    beans: [
-                        { x: 2, y: 0, value: "red", sprite: new Sprite({ image: "red", x: 30 + 52 * 2, y: 24 }) },
-                        { x: 3, y: 0, value: "blue", sprite: new Sprite({ image: "blue", x: 30 + 52 * 3, y: 24 }) }
-                    ],
-                    rotate: 0
-                };
-                game.player.beans.forEach(bean => scene.add(bean.sprite));
+                if (scene.get("matrix").get({ x: 2, y: 0 }) || scene.get("matrix").get({ x: 3, y: 0 })) {
+                    show(gameOverSceen);
+                } else {
+                    game.player = {
+                        beans: [
+                            { x: 2, y: 0, value: "red", sprite: new Sprite({ image: "red", x: 30 + 52 * 2, y: 24 }) },
+                            { x: 3, y: 0, value: "blue", sprite: new Sprite({ image: "blue", x: 30 + 52 * 3, y: 24 }) }
+                        ],
+                        rotate: 0
+                    };
+                    game.player.beans.forEach(bean => scene.add(bean.sprite));
+                }
             }
         }
 
