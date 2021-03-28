@@ -186,9 +186,9 @@ const gameScreen = new (class {
         game.player = {
             rotate: 0,
             beans: [{
-                x: 2, y: 0, sprite: new Sprite({ image: "red", x: 30 + 52 * 2, y: 24 })
+                x: 2, y: 0, value: "red", sprite: new Sprite({ image: "red", x: 30 + 52 * 2, y: 24 })
             }, {
-                x: 3, y: 0, sprite: new Sprite({ image: "blue", x: 30 + 52 * 3, y: 24 })
+                x: 3, y: 0, value: "blue", sprite: new Sprite({ image: "blue", x: 30 + 52 * 3, y: 24 })
             }]
         };
         game.player.beans.forEach(bean => scene.add(bean.sprite));
@@ -256,7 +256,7 @@ const gameScreen = new (class {
                 if (canMoveBean({ bean, dy: 1, dx: 0 })) {
                     moveBean({ bean, dy: 1, dx: 0, faster })
                 } else {
-                    scene.get("matrix").set({ x: bean.x, y: bean.y, value: bean.sprite.image });
+                    scene.get("matrix").set(bean);
                     scene.remove(bean.sprite);
                     game.player.beans = game.player.beans.filter(other => other !== bean);
                 }
@@ -265,8 +265,8 @@ const gameScreen = new (class {
             if (game.player.beans.length == 0) {
                 game.player = {
                     beans: [
-                        { x: 2, y: 0, sprite: new Sprite({ image: "red", x: 30 + 52 * 2, y: 24 }) },
-                        { x: 3, y: 0, sprite: new Sprite({ image: "blue", x: 30 + 52 * 3, y: 24 }) }
+                        { x: 2, y: 0, value: "red", sprite: new Sprite({ image: "red", x: 30 + 52 * 2, y: 24 }) },
+                        { x: 3, y: 0, value: "blue", sprite: new Sprite({ image: "blue", x: 30 + 52 * 3, y: 24 }) }
                     ],
                     rotate: 0
                 };
