@@ -80,6 +80,10 @@ class Matrix {
         }
     }
 
+    getSprite({ x, y }) {
+        return (x >= 0) && (y >= 0) && (x < this.width) && (y < this.height) ? this.entries[y][x].sprite : null;
+    }
+
     get({ x, y }) {
         return (x >= 0) && (y >= 0) && (x < this.width) && (y < this.height) ?
             (this.entries[y][x].newValue !== undefined ? this.entries[y][x].newValue : this.entries[y][x].value) :
@@ -181,6 +185,50 @@ const startScreen = new (class {
 const checkKeyboard = (keyboardCounter, counter, interval, delay) =>
     ((counter - keyboardCounter) === 0 || (((counter - keyboardCounter) % interval) == 0 && (counter - keyboardCounter) >= delay));
 
+const gameOverSceen = new (class {
+    enter({ scene, game }) {
+        game.player.beans.forEach(bean => scene.remove(bean.sprite));
+
+        const animation = Math.floor(3 * Math.random());
+        const matrix = scene.get("matrix");
+
+        for (let y = 0; y < matrix.height; y++) {
+            for (let x = 0; x < matrix.width; x++) {
+                const sprite = matrix.getSprite({ x, y });
+                if (sprite) {
+                    const wait = Math.floor([
+                        () => 0.1 * (matrix.height - y) + 0.5,
+                        () => 0.1 * (1 + y) + 0.5,
+                        () => Math.pow(Math.pow(x - matrix.width / 2 + 0.5, 2) + Math.pow(y - matrix.height / 2 + 0.5, 2), 0.5) * 0.15 + 0.5
+                    ][animation]() * 50);
+                    sprite.runScript(Script.sequence(
+                        Script.wait(wait),
+                        Script.group(
+                            Script.animate("scale", 1.0, 1.5, 10),
+                            Script.animate("alpha", 1.0, 0.6, 10)
+                        ),
+                        Script.animate("scale", 1.5, 0.75, 50),
+                        Script.group(
+                            Script.animate("scale", 0.75, 0.0, 5),
+                            Script.animate("alpha", 0.6, 0.0, 5)
+                        )
+                    ));
+                }
+            }
+        }
+    }
+
+    move({ counterSinceEnter, show }) {
+        if (counterSinceEnter > 3 * 100) {
+            show(startScreen);
+        }
+    }
+
+    exit({ scene }) {
+        scene.get("matrix").clear();
+    }
+})
+
 const gameScreen = new (class {
     enter({ scene, game }) {
         game.player = {
@@ -194,11 +242,6 @@ const gameScreen = new (class {
         game.player.beans.forEach(bean => scene.add(bean.sprite));
         scene.get("matrix").set({ x: 4, y: 10, value: "red" });
         scene.get("matrix").set({ x: 3, y: 10, value: "yellow" });
-    }
-
-    exit({ scene, game }) {
-        game.player.beans.forEach(bean => scene.remove(bean.sprite));
-        scene.get("matrix").clear();
     }
 
     move({ keyboard, show, scene, counter, counterSinceEnter, game }) {
@@ -255,10 +298,14 @@ const gameScreen = new (class {
             [...game.player.beans].sort((a, b) => b.y - a.y).forEach(bean => {
                 if (canMoveBean({ bean, dy: 1, dx: 0 })) {
                     moveBean({ bean, dy: 1, dx: 0, faster })
+                    bean.sprite.image = bean.value + (faster ? "Falling" : "");
                 } else {
                     scene.get("matrix").set(bean);
                     scene.remove(bean.sprite);
                     game.player.beans = game.player.beans.filter(other => other !== bean);
+                    if (bean.y == 0) {
+                        show(gameOverSceen);
+                    }
                 }
             });
 
@@ -275,7 +322,7 @@ const gameScreen = new (class {
         }
 
         if (keyboard["Escape"] === counter) {
-            show(startScreen);
+            show(gameOverSceen);
         }
     }
 })();
