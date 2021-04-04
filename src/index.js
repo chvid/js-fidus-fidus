@@ -12,6 +12,22 @@ import Cloud from "./graphics/cloud.png";
 import { init, Sprite, Label } from "./framework";
 import * as Script from "./framework/script";
 
+const countNeighbourhood = ({ matrix, x, y, value, seen = [] }) => {
+    if (!seen.some(p => p.x == x && p.y == y)) {
+        if (value == null) {
+            value = matrix.get({ x, y });
+        }
+        if (value && matrix.get({ x, y }) == value) {
+            seen.push({ x, y });
+            countNeighbourhood({ matrix, value, x: x + 1, y, seen });
+            countNeighbourhood({ matrix, value, x: x - 1, y, seen });
+            countNeighbourhood({ matrix, value, x, y: y + 1, seen });
+            countNeighbourhood({ matrix, value, x, y: y - 1, seen });
+        }
+    }
+    return seen;
+}
+
 class Matrix {
     constructor({ width, height, defaultValue }) {
         this.width = width;
@@ -294,22 +310,32 @@ const gameScreen = new (class {
 
         const faster = (keyboard[" "] || game.player.beans.length == 1);
 
+        const matrix = scene.get("matrix");
+
         if ((counterSinceEnter % 30 == 0) || (faster && (counterSinceEnter % 5 == 0))) {
             [...game.player.beans].sort((a, b) => b.y - a.y).forEach(bean => {
                 if (canMoveBean({ bean, dy: 1, dx: 0 })) {
                     moveBean({ bean, dy: 1, dx: 0, faster })
                     bean.sprite.image = bean.value + (faster ? "Falling" : "");
                 } else {
-                    scene.get("matrix").set(bean);
+                    matrix.set(bean);
                     scene.remove(bean.sprite);
                     game.player.beans = game.player.beans.filter(other => other !== bean);
                 }
             });
 
             if (game.player.beans.length == 0) {
-                if (scene.get("matrix").get({ x: 2, y: 0 }) || scene.get("matrix").get({ x: 3, y: 0 })) {
+                if (matrix.get({ x: 2, y: 0 }) || matrix.get({ x: 3, y: 0 })) {
                     show(gameOverSceen);
                 } else {
+                    const counts = matrix.entries.map(l => l.map(e => countNeighbourhood({ matrix, x: e.x, y: e.y })));
+
+                    counts.forEach(l => l.forEach(group => {
+                        if (group.length >= 4) {
+                            group.forEach(e => matrix.set({x: e.x, y: e.y, value: null}));
+                        }
+                    }));
+
                     game.player = {
                         beans: [
                             { x: 2, y: 0, value: "red", sprite: new Sprite({ image: "red", x: 30 + 52 * 2, y: 24 }) },
@@ -395,7 +421,7 @@ init({
         score: new Label({ text: ({ game }) => ("" + (game.score + 1000000)).substring(2), x: 244, y: 20 }),
         hiscore: new Label({ text: ({ game }) => ("" + (game.hiscore + 1000000)).substring(2), x: 8, y: 20 }),
         matrix: new Matrix({ width: 6, height: 11, defaultValue: "blocked" }),
-        background // new Sprite({ image: "background", x: 160, y: 284, zIndex: -999 })
+        background
     },
     game: {
         score: 42,
