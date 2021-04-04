@@ -1,3 +1,5 @@
+import { Sprite } from "./framework";
+
 export class Matrix {
     constructor({ width, height, defaultValue }) {
         this.width = width;
