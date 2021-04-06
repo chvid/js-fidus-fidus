@@ -179,6 +179,10 @@ const gameScreen = new (class {
     }
 
     move({ keyboard, show, scene, counter, counterSinceEnter, game }) {
+        const faster = (keyboard[" "] || game.player.beans.length == 1);
+        
+        const matrix = scene.get("matrix");
+
         const moveBean = ({ bean, dx, dy, faster }) => {
             let scripts = [];
             if (dy) {
@@ -199,7 +203,7 @@ const gameScreen = new (class {
 
         const movePlayer = ({ dx, dy }) => game.player.beans.forEach(bean => moveBean({ bean, dx, dy }));
 
-        const canMoveBean = ({ dx, dy, bean }) => (scene.get("matrix").get({ x: bean.x + dx, y: bean.y + dy }) == null);
+        const canMoveBean = ({ dx, dy, bean }) => (matrix.get({ x: bean.x + dx, y: bean.y + dy }) == null);
 
         const canMovePlayer = ({ dx = 0, dy = 0 }) =>
             !game.player.beans.map(bean => canMoveBean({ dx, dy, bean })).includes(false);
@@ -225,10 +229,6 @@ const gameScreen = new (class {
                 movePlayer({ dx: 1 });
             }
         }
-
-        const faster = (keyboard[" "] || game.player.beans.length == 1);
-
-        const matrix = scene.get("matrix");
 
         if ((counterSinceEnter % 30 == 0) || (faster && (counterSinceEnter % 5 == 0))) {
             [...game.player.beans].sort((a, b) => b.y - a.y).forEach(bean => {
