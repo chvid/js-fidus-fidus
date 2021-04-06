@@ -163,6 +163,41 @@ const gameOverSceen = new (class {
     }
 })
 
+const moveBean = ({ bean, dx, dy, faster }) => {
+    let scripts = [];
+    if (dy) {
+        scripts.push(Script.sequence(
+            faster ? Script.animateBy("y", 52 * dy, 5, 1, "linear") : Script.animateBy("y", 52 * dy, 10, 1, "sigmoid")
+        ));
+        bean.y += dy;
+    }
+
+    if (dx) {
+        scripts.push(Script.sequence(
+            faster ? Script.animateBy("x", 52 * dx, 5, 1, "linear") : Script.animateBy("x", 52 * dx, 10, 1, "sigmoid")
+        ));
+        bean.x += dx;
+    }
+    bean.sprite.runScript(Script.group(...scripts));
+}
+
+const movePlayer = ({ dx, dy, player }) => player.beans.forEach(bean => moveBean({ bean, dx, dy }));
+
+const canMoveBean = ({ dx, dy, bean, matrix }) => (matrix.get({ x: bean.x + dx, y: bean.y + dy }) == null);
+
+const canMovePlayer = ({ dx = 0, dy = 0, player, matrix }) =>
+    !player.beans.map(bean => canMoveBean({ dx, dy, bean, matrix })).includes(false);
+
+const rotatePlayer = ({direction, player, matrix}) => {
+    const bean = player.beans[1];
+    const rotations = [{ dx: 1, dy: 1 }, { dx: -1, dy: 1 }, { dx: -1, dy: -1 }, { dx: 1, dy: -1 }];
+    const rotation = rotations[direction == 1 ? (player.rotate + 1) % 4 : (player.rotate + 2) % 4];
+    if (canMoveBean({ bean, ...rotation, matrix })) {
+        moveBean({ bean, ...rotation });
+        player.rotate = direction == 1 ? (player.rotate + 1) % 4 : (player.rotate + 3) % 4;
+    }
+}
+
 const gameScreen = new (class {
     enter({ scene, game }) {
         game.player = {
@@ -179,70 +214,35 @@ const gameScreen = new (class {
     }
 
     move({ keyboard, show, scene, counter, counterSinceEnter, game }) {
-        const faster = (keyboard[" "] || game.player.beans.length == 1);
-        
         const matrix = scene.get("matrix");
+        const player = game.player;
+        const faster = (keyboard[" "] || player.beans.length == 1);
 
-        const moveBean = ({ bean, dx, dy, faster }) => {
-            let scripts = [];
-            if (dy) {
-                scripts.push(Script.sequence(
-                    faster ? Script.animateBy("y", 52 * dy, 5, 1, "linear") : Script.animateBy("y", 52 * dy, 10, 1, "sigmoid")
-                ));
-                bean.y += dy;
-            }
-
-            if (dx) {
-                scripts.push(Script.sequence(
-                    faster ? Script.animateBy("x", 52 * dx, 5, 1, "linear") : Script.animateBy("x", 52 * dx, 10, 1, "sigmoid")
-                ));
-                bean.x += dx;
-            }
-            bean.sprite.runScript(Script.group(...scripts));
-        }
-
-        const movePlayer = ({ dx, dy }) => game.player.beans.forEach(bean => moveBean({ bean, dx, dy }));
-
-        const canMoveBean = ({ dx, dy, bean }) => (matrix.get({ x: bean.x + dx, y: bean.y + dy }) == null);
-
-        const canMovePlayer = ({ dx = 0, dy = 0 }) =>
-            !game.player.beans.map(bean => canMoveBean({ dx, dy, bean })).includes(false);
-
-        const rotatePlayer = (delta) => {
-            const bean = game.player.beans[1];
-            const rotations = [{ dx: 1, dy: 1 }, { dx: -1, dy: 1 }, { dx: -1, dy: -1 }, { dx: 1, dy: -1 }];
-            const rotation = rotations[delta == 1 ? (game.player.rotate + 1) % 4 : (game.player.rotate + 2) % 4];
-            if (canMoveBean({ bean, ...rotation })) {
-                moveBean({ bean, ...rotation });
-                game.player.rotate = delta == 1 ? (game.player.rotate + 1) % 4 : (game.player.rotate + 3) % 4;
-            }
-        }
-
-        if (game.player.beans.length == 2) {
+        if (player.beans.length == 2) {
             if (checkKeyboard(keyboard["ArrowDown"], counter, 10, 30)) {
-                rotatePlayer(+1);
+                rotatePlayer({direction: 1, player, matrix});
             } else if (checkKeyboard(keyboard["ArrowUp"], counter, 10, 30)) {
-                rotatePlayer(-1);
-            } else if (checkKeyboard(keyboard["ArrowLeft"], counter, 10, 30) && canMovePlayer({ dx: -1 })) {
-                movePlayer({ dx: -1 });
-            } else if (checkKeyboard(keyboard["ArrowRight"], counter, 10, 30) && canMovePlayer({ dx: 1 })) {
-                movePlayer({ dx: 1 });
+                rotatePlayer({direction: -1, player, matrix});
+            } else if (checkKeyboard(keyboard["ArrowLeft"], counter, 10, 30) && canMovePlayer({ dx: -1, player, matrix })) {
+                movePlayer({ dx: -1, player });
+            } else if (checkKeyboard(keyboard["ArrowRight"], counter, 10, 30) && canMovePlayer({ dx: 1, player, matrix })) {
+                movePlayer({ dx: 1, player });
             }
         }
 
         if ((counterSinceEnter % 30 == 0) || (faster && (counterSinceEnter % 5 == 0))) {
-            [...game.player.beans].sort((a, b) => b.y - a.y).forEach(bean => {
-                if (canMoveBean({ bean, dy: 1, dx: 0 })) {
+            [...player.beans].sort((a, b) => b.y - a.y).forEach(bean => {
+                if (canMoveBean({ bean, dy: 1, dx: 0, matrix })) {
                     moveBean({ bean, dy: 1, dx: 0, faster })
                     bean.sprite.image = bean.value + (faster ? "Falling" : "");
                 } else {
                     matrix.set(bean);
                     scene.remove(bean.sprite);
-                    game.player.beans = game.player.beans.filter(other => other !== bean);
+                    player.beans = player.beans.filter(other => other !== bean);
                 }
             });
 
-            if (game.player.beans.length == 0) {
+            if (player.beans.length == 0) {
                 if (matrix.get({ x: 2, y: 0 }) || matrix.get({ x: 3, y: 0 })) {
                     show(gameOverSceen);
                 } else {
