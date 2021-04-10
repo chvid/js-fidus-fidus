@@ -9,10 +9,17 @@ export const context = {
     // width
     // height
     // counter
+    counter: 0,
+    counterSinceEnter: 0,
     images,
     scene,
     keyboard: {},
-    show: screen => (context.nextScreen = screen)
+    show: (screen, after = 0) => {
+        if ((context.nextScreenAt == null) || (context.nextScreenAt >= context.counter + after)) {
+            context.nextScreen = screen;
+            context.nextScreenAt = context.counter + after;
+        }
+    }
 };
 
 window.onload = () => {
@@ -21,8 +28,6 @@ window.onload = () => {
     context.graphics = canvasElement.getContext("2d");
     context.width = canvasElement.scrollWidth;
     context.height = canvasElement.scrollHeight;
-    context.counter = 0;
-    context.counterSinceEnter = 0;
 
     setInterval(() => {
         if (!context.images.checkLoadComplete()) {
@@ -30,13 +35,14 @@ window.onload = () => {
             return;
         }
 
-        if (context.nextScreen) {
+        while (context.nextScreen && (context.counter >= context.nextScreenAt)) {
             if (context.screen && context.screen.exit) {
                 context.screen.exit(context);
             }
 
             context.screen = context.nextScreen;
             context.nextScreen = null;
+            context.nextScreenAt = null;
             context.counterSinceEnter = 0;
 
             if (context.screen && context.screen.enter) {

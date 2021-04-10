@@ -120,7 +120,7 @@ const checkKeyboard = (keyboardCounter, counter, interval, delay) =>
     ((counter - keyboardCounter) === 0 || (((counter - keyboardCounter) % interval) == 0 && (counter - keyboardCounter) >= delay));
 
 const gameOverSceen = new (class {
-    enter({ scene, game }) {
+    enter({ scene, game, show }) {
         game.player.beans.forEach(bean => scene.remove(bean.sprite));
 
         const animation = Math.floor(3 * Math.random());
@@ -150,12 +150,7 @@ const gameOverSceen = new (class {
                 }
             }
         }
-    }
-
-    move({ counterSinceEnter, show }) {
-        if (counterSinceEnter > 3 * 50) {
-            show(startScreen);
-        }
+        show(startScreen, 3 * 50);
     }
 
     exit({ scene }) {
@@ -188,7 +183,7 @@ const canMoveBean = ({ dx, dy, bean, matrix }) => (matrix.get({ x: bean.x + dx, 
 const canMovePlayer = ({ dx = 0, dy = 0, player, matrix }) =>
     !player.beans.map(bean => canMoveBean({ dx, dy, bean, matrix })).includes(false);
 
-const rotatePlayer = ({direction, player, matrix}) => {
+const rotatePlayer = ({ direction, player, matrix }) => {
     const bean = player.beans[1];
     const rotations = [{ dx: 1, dy: 1 }, { dx: -1, dy: 1 }, { dx: -1, dy: -1 }, { dx: 1, dy: -1 }];
     const rotation = rotations[direction == 1 ? (player.rotate + 1) % 4 : (player.rotate + 2) % 4];
@@ -199,7 +194,15 @@ const rotatePlayer = ({direction, player, matrix}) => {
 }
 
 const gameScreen = new (class {
-    enter({ scene, game }) {
+    enter({ show, scene }) {
+        scene.get("matrix").set({ x: 4, y: 10, value: "red" });
+        scene.get("matrix").set({ x: 3, y: 10, value: "yellow" });
+        show(gamePlayerEntersScreen, 25);
+    }
+})();
+
+const gamePlayerEntersScreen = new (class {
+    enter({ scene, game, show }) {
         game.player = {
             rotate: 0,
             beans: [{
@@ -209,20 +212,21 @@ const gameScreen = new (class {
             }]
         };
         game.player.beans.forEach(bean => scene.add(bean.sprite));
-        scene.get("matrix").set({ x: 4, y: 10, value: "red" });
-        scene.get("matrix").set({ x: 3, y: 10, value: "yellow" });
+        show(gamePlayerMovesScreen, 25);
     }
+})();
 
+const gamePlayerMovesScreen = new (class {
     move({ keyboard, show, scene, counter, counterSinceEnter, game }) {
         const matrix = scene.get("matrix");
         const player = game.player;
-        const faster = (keyboard[" "] || player.beans.length == 1);
+        const faster = keyboard[" "];
 
         if (player.beans.length == 2) {
             if (checkKeyboard(keyboard["ArrowDown"], counter, 10, 30)) {
-                rotatePlayer({direction: 1, player, matrix});
+                rotatePlayer({ direction: 1, player, matrix });
             } else if (checkKeyboard(keyboard["ArrowUp"], counter, 10, 30)) {
-                rotatePlayer({direction: -1, player, matrix});
+                rotatePlayer({ direction: -1, player, matrix });
             } else if (checkKeyboard(keyboard["ArrowLeft"], counter, 10, 30) && canMovePlayer({ dx: -1, player, matrix })) {
                 movePlayer({ dx: -1, player });
             } else if (checkKeyboard(keyboard["ArrowRight"], counter, 10, 30) && canMovePlayer({ dx: 1, player, matrix })) {
@@ -239,38 +243,46 @@ const gameScreen = new (class {
                     matrix.set(bean);
                     scene.remove(bean.sprite);
                     player.beans = player.beans.filter(other => other !== bean);
+                    show(gameUpdateBeansScreen);
                 }
             });
-
-            if (player.beans.length == 0) {
-                if (matrix.get({ x: 2, y: 0 }) || matrix.get({ x: 3, y: 0 })) {
-                    show(gameOverSceen);
-                } else {
-                    const counts = matrix.entries.map(l => l.map(e => countNeighbourhood({ matrix, x: e.x, y: e.y })));
-
-                    counts.forEach(l => l.forEach(group => {
-                        if (group.length >= 4) {
-                            group.forEach(e => matrix.set({x: e.x, y: e.y, value: null}));
-                        }
-                    }));
-
-                    game.player = {
-                        beans: [
-                            { x: 2, y: 0, value: "red", sprite: new Sprite({ image: "red", x: 30 + 52 * 2, y: 24 }) },
-                            { x: 3, y: 0, value: "blue", sprite: new Sprite({ image: "blue", x: 30 + 52 * 3, y: 24 }) }
-                        ],
-                        rotate: 0
-                    };
-                    game.player.beans.forEach(bean => scene.add(bean.sprite));
-                }
-            }
-        }
-
-        if (keyboard["Escape"] === counter) {
-            show(gameOverSceen);
         }
     }
-})();
+})
+
+const gameUpdateBeansScreen = new (class {
+    move({ show, scene, counterSinceEnter, game }) {
+        const matrix = scene.get("matrix");
+        const player = game.player;
+
+        if (counterSinceEnter % 5 == 0) {
+            [...player.beans].sort((a, b) => b.y - a.y).forEach(bean => {
+                if (canMoveBean({ bean, dy: 1, dx: 0, matrix })) {
+                    moveBean({ bean, dy: 1, dx: 0, faster: true })
+                } else {
+                    matrix.set(bean);
+                    scene.remove(bean.sprite);
+                    player.beans = [];
+                }
+            });
+        }
+        if (player.beans.length == 0) {
+            if (matrix.get({ x: 2, y: 0 }) || matrix.get({ x: 3, y: 0 })) {
+                show(gameOverSceen);
+            } else {
+                const counts = matrix.entries.map(l => l.map(e => countNeighbourhood({ matrix, x: e.x, y: e.y })));
+
+                counts.forEach(l => l.forEach(group => {
+                    if (group.length >= 4) {
+                        group.forEach(e => matrix.set({ x: e.x, y: e.y, value: null }));
+                    }
+                }));
+
+                show(gamePlayerEntersScreen);
+            }
+        }
+    }
+})
 
 const background = new (class {
     enter({ scene }) {
