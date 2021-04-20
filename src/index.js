@@ -13,6 +13,8 @@ import { init, Sprite, Label } from "./framework";
 import * as Script from "./framework/script";
 import { Matrix } from "./matrix";
 
+const colors = ["red", "blue", "yellow", "green", "purple"];
+
 const countNeighbourhood = ({ matrix, x, y, value, seen = [] }) => {
     if (!seen.some(p => p.x == x && p.y == y)) {
         if (value == null) {
@@ -205,11 +207,9 @@ const gamePlayerEntersScreen = new (class {
     enter({ scene, game, show }) {
         game.player = {
             rotate: 0,
-            beans: [{
-                x: 2, y: 0, value: "red", sprite: new Sprite({ image: "red", x: 30 + 52 * 2, y: 24 })
-            }, {
-                x: 3, y: 0, value: "blue", sprite: new Sprite({ image: "blue", x: 30 + 52 * 3, y: 24 })
-            }]
+            beans: [2, 3].map(x => ({ x, y: 0, value: colors[Math.floor(Math.random() * 5)] })).map(
+                b => ({ ...b, sprite: new Sprite({ image: b.value, x: 30 + 52 * b.x, y: 24 }) })
+            )
         };
         game.player.beans.forEach(bean => scene.add(bean.sprite));
         show(gamePlayerMovesScreen, 25);
@@ -288,15 +288,12 @@ const gameCollapseBeansScreen = new (class {
     enter({ show, scene }) {
         const matrix = scene.get("matrix");
 
-        const counts = matrix.entries.map(l => l.map(e => countNeighbourhood({ matrix, x: e.x, y: e.y })));
+        const groups = matrix.flattenEntries().map(e => countNeighbourhood({ matrix, x: e.x, y: e.y })).filter(group => group.length >= 4);
 
-        counts.forEach(l => l.forEach(group => {
-            if (group.length >= 4) {
+        if (groups.length > 0) {
+            groups.forEach(group => {
                 group.forEach(e => matrix.set({ x: e.x, y: e.y, value: null }));
-            }
-        }));
-
-        if (counts.some(l => l.some(g => g.length >= 4))) {
+            });
             show(gameMarksBeansFallingScreen, 10);
         } else {
             show(gamePlayerEntersScreen, 10);
