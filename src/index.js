@@ -336,7 +336,7 @@ const gameMoveFallingBeansDownScreen = new (class {
                 }
             });
 
-        show(gameMarksBeansFallingScreen, 0);
+        show(gameMarksBeansFallingScreen);
     }
 })();
 
