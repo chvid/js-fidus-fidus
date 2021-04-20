@@ -206,6 +206,10 @@ const gamePlayerEntersScreen = new (class {
             rotate: 0,
             beans: [2, 3].map(x => ({ x, y: 0, value: colors[Math.floor(Math.random() * 5)] })).map(b => ({ ...b, sprite: new Sprite({ image: b.value, x: 30 + 52 * b.x, y: 24 }) }))
         };
+        game.player.beans.forEach(bean => bean.sprite.runScript(Script.sequence(
+            Script.animate("scale", 1, 2, 0.2 * 50),
+            Script.animate("scale", 2, 1, 0.3 * 50)
+        )));
         game.player.beans.forEach(bean => scene.add(bean.sprite));
         show(gamePlayerMovesScreen, 25);
     }
