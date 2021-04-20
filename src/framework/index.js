@@ -15,7 +15,7 @@ export const context = {
     scene,
     keyboard: {},
     show: (screen, after = 0) => {
-        if ((context.nextScreenAt == null) || (context.nextScreenAt >= context.counter + after)) {
+        if (context.nextScreenAt == null || context.nextScreenAt >= context.counter + after) {
             context.nextScreen = screen;
             context.nextScreenAt = context.counter + after;
         }
@@ -35,7 +35,7 @@ window.onload = () => {
             return;
         }
 
-        while (context.nextScreen && (context.counter >= context.nextScreenAt)) {
+        while (context.nextScreen && context.counter >= context.nextScreenAt) {
             if (context.screen && context.screen.exit) {
                 context.screen.exit(context);
             }

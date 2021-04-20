@@ -3,7 +3,6 @@ import { computeState, computeDuration } from "./script";
 const readProperty = (property, context) => (typeof property == "function" ? property(context) : property);
 
 export class Sprite {
-
     constructor(properties) {
         for (let i of Object.keys(properties)) {
             this[i] = properties[i];
@@ -19,7 +18,7 @@ export class Sprite {
         for (let s of this.scripts) {
             if (s.addedAt === undefined) {
                 s.addedAt = counter;
-                s.deltas = { };
+                s.deltas = {};
             }
 
             let delta = counter - s.addedAt;

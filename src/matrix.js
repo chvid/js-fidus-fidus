@@ -43,11 +43,11 @@ export class Matrix {
     }
 
     getSprite({ x, y }) {
-        return (x >= 0) && (y >= 0) && (x < this.width) && (y < this.height) ? this.entries[y][x].sprite : null;
+        return x >= 0 && y >= 0 && x < this.width && y < this.height ? this.entries[y][x].sprite : null;
     }
 
     get({ x, y }) {
-        return (x >= 0) && (y >= 0) && (x < this.width) && (y < this.height) ? this.entries[y][x].value : this.defaultValue;
+        return x >= 0 && y >= 0 && x < this.width && y < this.height ? this.entries[y][x].value : this.defaultValue;
     }
 
     set({ x, y, value }) {
