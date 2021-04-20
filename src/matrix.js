@@ -81,4 +81,13 @@ export class Matrix {
     set({ x, y, value }) {
         this.entries[y][x] = { ...this.entries[y][x], newValue: value };
     }
+
+    flattenEntries() {
+        return this.entries.reduce((a, b) => [...a, ... b], []).map(e => ({
+            value: (e.newValue !== undefined ? e.newValue : e.value),
+            x: e.x,
+            y: e.y,
+            sprite: e.sprite
+        }));
+    }
 }

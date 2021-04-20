@@ -255,7 +255,7 @@ const gameUpdateBeansScreen = new (class {
         const matrix = scene.get("matrix");
         const player = game.player;
 
-        if (counterSinceEnter % 5 == 0) {
+        if (counterSinceEnter % 5 == 4) {
             [...player.beans].sort((a, b) => b.y - a.y).forEach(bean => {
                 if (canMoveBean({ bean, dy: 1, dx: 0, matrix })) {
                     moveBean({ bean, dy: 1, dx: 0, faster: true })
@@ -278,11 +278,60 @@ const gameUpdateBeansScreen = new (class {
                     }
                 }));
 
-                show(gamePlayerEntersScreen);
+                if (counts.some(l => l.some(g => g.length >= 4))) {
+                    show(gameMarksBeansFallingScreen);
+                } else {
+                    show(gamePlayerEntersScreen);
+                }
             }
         }
     }
-})
+});
+
+const range = (from, to) => {
+    let result = [];
+    for (let i = from; i < to; i++) {
+        result.push(i);
+    }
+    return result;
+}
+
+const gameMarksBeansFallingScreen = new (class {
+    enter({ show, scene }) {
+        const matrix = scene.get("matrix");
+
+        const beansInFreefall = matrix.flattenEntries().filter(
+            e => (e.value != null && range(e.y + 1, matrix.height).some(y => matrix.get({ x: e.x, y }) == null))
+        );
+
+        if (beansInFreefall.length > 0) {
+            beansInFreefall.forEach(e => {
+                e.sprite.image = e.value + "Falling";
+                e.sprite.runScript(Script.animate("y", e.sprite.y, e.sprite.y + 56, 10));
+            });
+    
+            show(gameMoveFallingBeansDownScreen, 10);
+        } else {
+            show(gamePlayerEntersScreen, 30);
+        }
+    }
+});
+
+
+const gameMoveFallingBeansDownScreen = new (class {
+    enter({ show, scene }) {
+        const matrix = scene.get("matrix");
+
+        matrix.flattenEntries().reverse().forEach(e => {
+            if (e.value != null && e.sprite.image == e.value + "Falling") {
+                matrix.set({ x: e.x, y: e.y + 1, value: e.value });
+                matrix.set({ x: e.x, y: e.y, value: null });
+            }
+        });
+
+        show(gameMarksBeansFallingScreen, 1);
+    }
+});
 
 const background = new (class {
     enter({ scene }) {
