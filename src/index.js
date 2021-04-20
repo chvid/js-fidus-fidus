@@ -270,19 +270,7 @@ const gameUpdateBeansScreen = new (class {
             if (matrix.get({ x: 2, y: 0 }) || matrix.get({ x: 3, y: 0 })) {
                 show(gameOverSceen);
             } else {
-                const counts = matrix.entries.map(l => l.map(e => countNeighbourhood({ matrix, x: e.x, y: e.y })));
-
-                counts.forEach(l => l.forEach(group => {
-                    if (group.length >= 4) {
-                        group.forEach(e => matrix.set({ x: e.x, y: e.y, value: null }));
-                    }
-                }));
-
-                if (counts.some(l => l.some(g => g.length >= 4))) {
-                    show(gameMarksBeansFallingScreen);
-                } else {
-                    show(gamePlayerEntersScreen);
-                }
+                show(gameCollapseBeansScreen);
             }
         }
     }
@@ -296,6 +284,26 @@ const range = (from, to) => {
     return result;
 }
 
+const gameCollapseBeansScreen = new (class {
+    enter({ show, scene }) {
+        const matrix = scene.get("matrix");
+
+        const counts = matrix.entries.map(l => l.map(e => countNeighbourhood({ matrix, x: e.x, y: e.y })));
+
+        counts.forEach(l => l.forEach(group => {
+            if (group.length >= 4) {
+                group.forEach(e => matrix.set({ x: e.x, y: e.y, value: null }));
+            }
+        }));
+
+        if (counts.some(l => l.some(g => g.length >= 4))) {
+            show(gameMarksBeansFallingScreen, 10);
+        } else {
+            show(gamePlayerEntersScreen, 10);
+        }
+    }
+});
+
 const gameMarksBeansFallingScreen = new (class {
     enter({ show, scene }) {
         const matrix = scene.get("matrix");
@@ -307,16 +315,15 @@ const gameMarksBeansFallingScreen = new (class {
         if (beansInFreefall.length > 0) {
             beansInFreefall.forEach(e => {
                 e.sprite.image = e.value + "Falling";
-                e.sprite.runScript(Script.animate("y", e.sprite.y, e.sprite.y + 56, 10));
+                e.sprite.runScript(Script.animate("y", e.sprite.y, e.sprite.y + 56, 5));
             });
-    
-            show(gameMoveFallingBeansDownScreen, 10);
+
+            show(gameMoveFallingBeansDownScreen, 5);
         } else {
-            show(gamePlayerEntersScreen, 30);
+            show(gameCollapseBeansScreen, 10);
         }
     }
 });
-
 
 const gameMoveFallingBeansDownScreen = new (class {
     enter({ show, scene }) {
@@ -329,7 +336,7 @@ const gameMoveFallingBeansDownScreen = new (class {
             }
         });
 
-        show(gameMarksBeansFallingScreen, 1);
+        show(gameMarksBeansFallingScreen, 0);
     }
 });
 

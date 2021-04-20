@@ -25,32 +25,6 @@ export class Matrix {
     move(c) {
         for (let line of this.entries) {
             for (let e of line) {
-                if (e.newValue !== undefined && e.sprite) {
-                    if (e.sprite.exit) {
-                        e.sprite.exit(c);
-                    }
-                    delete e.sprite;
-                }
-            }
-        }
-
-        for (let line of this.entries) {
-            for (let e of line) {
-                if (e.newValue !== undefined) {
-                    e.value = e.newValue;
-                    delete e.newValue;
-                    if (e.value) {
-                        e.sprite = new Sprite({ image: e.value, x: 30 + e.x * 52, y: e.y * 52 + 24 });
-                        if (e.sprite.enter) {
-                            e.sprite.enter(c);
-                        }
-                    }
-                }
-            }
-        }
-
-        for (let line of this.entries) {
-            for (let e of line) {
                 if (e.sprite && e.sprite.move) {
                     e.sprite.move(c);
                 }
@@ -73,21 +47,18 @@ export class Matrix {
     }
 
     get({ x, y }) {
-        return (x >= 0) && (y >= 0) && (x < this.width) && (y < this.height) ?
-            (this.entries[y][x].newValue !== undefined ? this.entries[y][x].newValue : this.entries[y][x].value) :
-            this.defaultValue;
+        return (x >= 0) && (y >= 0) && (x < this.width) && (y < this.height) ? this.entries[y][x].value : this.defaultValue;
     }
 
     set({ x, y, value }) {
-        this.entries[y][x] = { ...this.entries[y][x], newValue: value };
+        this.entries[y][x] = {
+            ...this.entries[y][x],
+            sprite: value != null ? new Sprite({ image: value, x: 30 + x * 52, y: y * 52 + 24 }) : null,
+            value
+        };
     }
 
     flattenEntries() {
-        return this.entries.reduce((a, b) => [...a, ... b], []).map(e => ({
-            value: (e.newValue !== undefined ? e.newValue : e.value),
-            x: e.x,
-            y: e.y,
-            sprite: e.sprite
-        }));
+        return this.entries.reduce((a, b) => [...a, ...b], []).map(e => ({ ...e }));
     }
 }
