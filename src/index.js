@@ -299,9 +299,7 @@ const gameCollapseBeansScreen = new (class {
             .filter(group => group.length >= 4);
 
         if (groups.length > 0) {
-            groups.forEach(group => {
-                group.forEach(e => matrix.set({ x: e.x, y: e.y, value: null }));
-            });
+            groups[0].forEach(e => matrix.set({ x: e.x, y: e.y, value: null }));
             show(gameMarksBeansFallingScreen, 10);
         } else {
             show(gamePlayerEntersScreen, 10);
