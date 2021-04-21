@@ -47,25 +47,33 @@ export class Sprite {
     }
 }
 
-export class Label {
-    fontFamily = "AvenirNext-Heavy, sans-serif";
-    size = 20;
-    fillStyle = "#000000ff";
-    strokeStyle = "#ffffffaa";
+const applyAlpha = (color, alpha) => {
+    let hex = (256 + Math.round(alpha * parseInt(color.substr(-2), 16))).toString(16).substr(-2);
+    return color.substr(0, 7) + hex;
+}
 
+export class Label extends Sprite {
     constructor(properties) {
-        for (let i of Object.keys(properties)) {
-            this[i] = properties[i];
-        }
+        super({
+            fontFamily: "AvenirNext-Heavy, sans-serif",
+            size: 20,
+            scale: 1,
+            alpha: 1,
+            fillStyle: "#000000ff",
+            textAlign: "center",
+            textBaseline: "middle",
+            strokeStyle: "#ffffffaa", ...properties
+        });
     }
 
     draw({ graphics }) {
         let text = readProperty(this.text, arguments[0]);
-
-        graphics.font = `${this.size}px ${this.fontFamily}`;
-        graphics.fillStyle = this.fillStyle;
+        graphics.font = `${Math.round(this.size * this.scale)}px ${this.fontFamily}`;
+        graphics.textAlign = this.textAlign;
+        graphics.textBaseline = this.textBaseline;
+        graphics.fillStyle = applyAlpha(this.fillStyle, this.alpha);
         graphics.fillText(text, this.x, this.y);
-        graphics.strokeStyle = this.strokeStyle;
+        graphics.strokeStyle = applyAlpha(this.strokeStyle, this.alpha);
         graphics.strokeText(text, this.x, this.y);
     }
 }

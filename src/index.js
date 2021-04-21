@@ -12,6 +12,7 @@ import Cloud from "./graphics/cloud.png";
 import { init, Sprite, Label } from "./framework";
 import * as Script from "./framework/script";
 import { Matrix } from "./matrix";
+import { scene } from "./framework/scene";
 
 const colors = ["red", "blue", "yellow", "green", "purple"];
 
@@ -92,10 +93,9 @@ const startScreen = new (class {
         );
     }
 
-    move({ keyboard, show, game, counter }) {
+    move({ keyboard, show, counter }) {
         if (keyboard[" "] === counter) {
             show(gameScreen);
-            game.score++;
         }
     }
 
@@ -179,6 +179,11 @@ const canMoveBean = ({ dx, dy, bean, matrix }) => matrix.get({ x: bean.x + dx, y
 
 const canMovePlayer = ({ dx = 0, dy = 0, player, matrix }) => !player.beans.map(bean => canMoveBean({ dx, dy, bean, matrix })).includes(false);
 
+const addToScore = (game, value) => {
+    game.score = game.score + value;
+    game.hiscore = Math.max(game.hiscore, game.score);
+}
+
 const rotatePlayer = ({ direction, player, matrix }) => {
     const bean = player.beans[1];
     const rotations = [
@@ -195,12 +200,13 @@ const rotatePlayer = ({ direction, player, matrix }) => {
 };
 
 const gameScreen = new (class {
-    enter({ show, scene }) {
+    enter({ show, scene, game }) {
         let x1 = Math.floor(Math.random() * 6);
         let x2 = Math.floor(x1 + 1 + Math.random() * 5) % 6;
         scene.get("matrix").set({ x: x1, y: 10, value: randomColor() });
         scene.get("matrix").set({ x: x2, y: 10, value: randomColor() });
         show(gamePlayerEntersScreen, 25);
+        game.score = 0;
     }
 })();
 
@@ -291,8 +297,10 @@ const range = (from, to) => {
     return result;
 };
 
+const average = list => list.reduce((a, b) => a + b, 0) / list.length;
+
 const gameCollapseBeansScreen = new (class {
-    enter({ show, scene }) {
+    enter({ show, scene, game }) {
         const matrix = scene.get("matrix");
 
         const groups = matrix
@@ -301,6 +309,31 @@ const gameCollapseBeansScreen = new (class {
             .filter(group => group.length >= 4);
 
         if (groups.length > 0) {
+            let points = groups[0].length * (groups[0].length - 1);
+            let center = { x: 30 + 52 * average(groups[0].map(p => p.x)), y: 24 + 52 * average(groups[0].map(p => p.y)) };
+            scene.add(new Label({
+                ...center,
+                text: "" + points,
+                zIndex: 999,
+                size: 56,
+                script: Script.sequence(
+                    Script.group(
+                        Script.animate("scale", 1, 0.6, 100),
+                        Script.sequence(
+                            Script.animate("alpha", 1, 1, 40),
+                            Script.animate("alpha", 1, 0, 10),
+                            Script.animate("alpha", 0, 0.7, 5),
+                            Script.animate("alpha", 0.7, 0, 10),
+                            Script.animate("alpha", 0, 0.4, 5),
+                            Script.animate("alpha", 0.4, 0, 15),
+                            Script.animate("alpha", 0, 0.2, 5),
+                            Script.animate("alpha", 0.2, 0, 20)
+                        )
+                    ),
+                    Script.wait(100), Script.call(({ scene, self }) => scene.remove(self))
+                )
+            }));
+            addToScore(game, points);
             groups[0].forEach(e => matrix.set({ x: e.x, y: e.y, value: null }));
             show(gameMarksBeansFallingScreen, 10);
         } else {
@@ -410,13 +443,13 @@ init({
     },
     start: startScreen,
     scene: {
-        score: new Label({ text: ({ game }) => ("" + (game.score + 1000000)).substring(2), x: 244, y: 20 }),
-        hiscore: new Label({ text: ({ game }) => ("" + (game.hiscore + 1000000)).substring(2), x: 8, y: 20 }),
+        score: new Label({ text: ({ game }) => ("" + (game.score + 1000000)).substring(2), x: 280, y: 12 }),
+        hiscore: new Label({ text: ({ game }) => ("" + (game.hiscore + 1000000)).substring(2), x: 40, y: 12 }),
         matrix: new Matrix({ width: 6, height: 11, defaultValue: "blocked" }),
         background
     },
     game: {
-        score: 42,
-        hiscore: 9999
+        score: 0,
+        hiscore: 0
     }
 });
