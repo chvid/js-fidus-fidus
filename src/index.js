@@ -196,8 +196,10 @@ const rotatePlayer = ({ direction, player, matrix }) => {
 
 const gameScreen = new (class {
     enter({ show, scene }) {
-        scene.get("matrix").set({ x: 2, y: 10, value: randomColor() });
-        scene.get("matrix").set({ x: 3, y: 10, value: randomColor() });
+        let x1 = Math.floor(Math.random() * 6);
+        let x2 = Math.floor(x1 + 1 + Math.random() * 5) % 6;
+        scene.get("matrix").set({ x: x1, y: 10, value: randomColor() });
+        scene.get("matrix").set({ x: x2, y: 10, value: randomColor() });
         show(gamePlayerEntersScreen, 25);
     }
 })();
