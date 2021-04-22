@@ -12,7 +12,6 @@ import Cloud from "./graphics/cloud.png";
 import { init, Sprite, Label } from "./framework";
 import * as Script from "./framework/script";
 import { Matrix } from "./matrix";
-import { scene } from "./framework/scene";
 
 const colors = ["red", "blue", "yellow", "green", "purple"];
 
@@ -315,7 +314,7 @@ const gameCollapseBeansScreen = new (class {
                 ...center,
                 text: "" + points,
                 zIndex: 999,
-                size: 56,
+                size: 40,
                 script: Script.sequence(
                     Script.group(
                         Script.animate("scale", 1, 0.6, 100),
