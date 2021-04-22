@@ -50,7 +50,7 @@ export class Sprite {
 const applyAlpha = (color, alpha) => {
     let hex = (256 + Math.round(alpha * parseInt(color.substr(-2), 16))).toString(16).substr(-2);
     return color.substr(0, 7) + hex;
-}
+};
 
 export class Label extends Sprite {
     constructor(properties) {
@@ -62,7 +62,8 @@ export class Label extends Sprite {
             fillStyle: "#000000ff",
             textAlign: "center",
             textBaseline: "middle",
-            strokeStyle: "#ffffffaa", ...properties
+            strokeStyle: "#ffffffaa",
+            ...properties
         });
     }
 

@@ -181,7 +181,7 @@ const canMovePlayer = ({ dx = 0, dy = 0, player, matrix }) => !player.beans.map(
 const addToScore = (game, value) => {
     game.score = game.score + value;
     game.hiscore = Math.max(game.hiscore, game.score);
-}
+};
 
 const rotatePlayer = ({ direction, player, matrix }) => {
     const bean = player.beans[1];
@@ -215,10 +215,7 @@ const gamePlayerEntersScreen = new (class {
             rotate: 0,
             beans: [2, 3].map(x => ({ x, y: 0, value: randomColor() })).map(b => ({ ...b, sprite: new Sprite({ image: b.value, x: 30 + 52 * b.x, y: 24 }) }))
         };
-        game.player.beans.forEach(bean => bean.sprite.runScript(Script.sequence(
-            Script.animate("scale", 1, 2, 0.2 * 50),
-            Script.animate("scale", 2, 1, 0.3 * 50)
-        )));
+        game.player.beans.forEach(bean => bean.sprite.runScript(Script.sequence(Script.animate("scale", 1, 2, 0.2 * 50), Script.animate("scale", 2, 1, 0.3 * 50))));
         game.player.beans.forEach(bean => scene.add(bean.sprite));
         show(gamePlayerMovesScreen, 25);
     }
@@ -312,28 +309,31 @@ const gameCollapseBeansScreen = new (class {
         if (groups.length > 0) {
             let points = groups[0].length * (groups[0].length - 1);
             let center = matrixToScreen({ x: average(groups[0].map(p => p.x)), y: average(groups[0].map(p => p.y)) });
-            scene.add(new Label({
-                ...center,
-                text: "" + points,
-                zIndex: 999,
-                size: 40,
-                script: Script.sequence(
-                    Script.group(
-                        Script.animate("scale", 1, 0.6, 100),
-                        Script.sequence(
-                            Script.animate("alpha", 1, 1, 40),
-                            Script.animate("alpha", 1, 0, 10),
-                            Script.animate("alpha", 0, 0.7, 5),
-                            Script.animate("alpha", 0.7, 0, 10),
-                            Script.animate("alpha", 0, 0.4, 5),
-                            Script.animate("alpha", 0.4, 0, 15),
-                            Script.animate("alpha", 0, 0.2, 5),
-                            Script.animate("alpha", 0.2, 0, 20)
-                        )
-                    ),
-                    Script.wait(100), Script.call(({ scene, self }) => scene.remove(self))
-                )
-            }));
+            scene.add(
+                new Label({
+                    ...center,
+                    text: "" + points,
+                    zIndex: 999,
+                    size: 40,
+                    script: Script.sequence(
+                        Script.group(
+                            Script.animate("scale", 1, 0.6, 100),
+                            Script.sequence(
+                                Script.animate("alpha", 1, 1, 40),
+                                Script.animate("alpha", 1, 0, 10),
+                                Script.animate("alpha", 0, 0.7, 5),
+                                Script.animate("alpha", 0.7, 0, 10),
+                                Script.animate("alpha", 0, 0.4, 5),
+                                Script.animate("alpha", 0.4, 0, 15),
+                                Script.animate("alpha", 0, 0.2, 5),
+                                Script.animate("alpha", 0.2, 0, 20)
+                            )
+                        ),
+                        Script.wait(100),
+                        Script.call(({ scene, self }) => scene.remove(self))
+                    )
+                })
+            );
             addToScore(game, points);
             groups[0].forEach(e => matrix.set({ x: e.x, y: e.y, value: null }));
             show(gameMarksBeansFallingScreen, 10);

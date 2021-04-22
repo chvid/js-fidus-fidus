@@ -54,7 +54,7 @@ export class Matrix {
     set({ x, y, value }) {
         this.entries[y][x] = {
             ...this.entries[y][x],
-            sprite: this.spriteFactory({x, y, value}),
+            sprite: this.spriteFactory({ x, y, value }),
             value
         };
     }
