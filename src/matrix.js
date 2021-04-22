@@ -1,11 +1,12 @@
 import { Sprite } from "./framework";
 
 export class Matrix {
-    constructor({ width, height, defaultValue }) {
+    constructor({ width, height, defaultValue, spriteFactory }) {
         this.width = width;
         this.height = height;
         this.entries = [];
         this.defaultValue = defaultValue;
+        this.spriteFactory = spriteFactory;
         for (let y = 0; y < height; y++) {
             this.entries[y] = [];
             for (let x = 0; x < width; x++) {
@@ -53,7 +54,7 @@ export class Matrix {
     set({ x, y, value }) {
         this.entries[y][x] = {
             ...this.entries[y][x],
-            sprite: value != null ? new Sprite({ image: value, x: 30 + x * 52, y: y * 52 + 24 }) : null,
+            sprite: this.spriteFactory({x, y, value}),
             value
         };
     }

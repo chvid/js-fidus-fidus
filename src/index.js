@@ -298,6 +298,8 @@ const range = (from, to) => {
 
 const average = list => list.reduce((a, b) => a + b, 0) / list.length;
 
+const matrixToScreen = ({ x, y }) => ({ x: 30 + 52 * x, y: 24 + 52 * y });
+
 const gameCollapseBeansScreen = new (class {
     enter({ show, scene, game }) {
         const matrix = scene.get("matrix");
@@ -309,7 +311,7 @@ const gameCollapseBeansScreen = new (class {
 
         if (groups.length > 0) {
             let points = groups[0].length * (groups[0].length - 1);
-            let center = { x: 30 + 52 * average(groups[0].map(p => p.x)), y: 24 + 52 * average(groups[0].map(p => p.y)) };
+            let center = matrixToScreen({ x: average(groups[0].map(p => p.x)), y: average(groups[0].map(p => p.y)) });
             scene.add(new Label({
                 ...center,
                 text: "" + points,
@@ -444,7 +446,12 @@ init({
     scene: {
         score: new Label({ text: ({ game }) => ("" + (game.score + 1000000)).substring(2), x: 280, y: 12 }),
         hiscore: new Label({ text: ({ game }) => ("" + (game.hiscore + 1000000)).substring(2), x: 40, y: 12 }),
-        matrix: new Matrix({ width: 6, height: 11, defaultValue: "blocked" }),
+        matrix: new Matrix({
+            width: 6,
+            height: 11,
+            defaultValue: "blocked",
+            spriteFactory: ({ x, y, value }) => (value != null ? new Sprite({ image: value, ...matrixToScreen({ x, y }) }) : null)
+        }),
         background
     },
     game: {
