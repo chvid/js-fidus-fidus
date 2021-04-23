@@ -36,10 +36,6 @@ export const images = new (class {
     }
 
     checkLoadComplete() {
-        let complete = true;
-        for (let i of Object.values(this.sourceImages)) {
-            complete = complete && i.complete;
-        }
-        return complete;
+        return Object.values(this.sourceImages).every(i => i.complete);
     }
 })();

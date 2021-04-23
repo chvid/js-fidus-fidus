@@ -12,7 +12,6 @@ import Cloud from "./graphics/cloud.png";
 import { init, Sprite, Label } from "./framework";
 import * as Script from "./framework/script";
 import { Matrix } from "./matrix";
-import { scene } from "./framework/scene";
 
 const colors = ["red", "blue", "yellow", "green", "purple", "black"];
 
