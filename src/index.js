@@ -15,17 +15,18 @@ import { Matrix } from "./matrix";
 
 const colors = ["red", "blue", "yellow", "green", "purple", "black"];
 
+const directions = [{ dx: -1, dy: 0 }, { dx: 1, dy: 0 }, { dx: 0, dy: -1 }, { dx: 0, dy: 1 }];
+
+const equals = (a, b) => [...Object.keys(a), ...Object.keys(b)].every(k => a[k] == b[k]);
+
 const countNeighbourhood = ({ matrix, x, y, value, seen = [] }) => {
-    if (!seen.some(p => p.x == x && p.y == y)) {
+    if (!seen.some(p => equals(p, { x, y }))) {
         if (value == null) {
             value = matrix.get({ x, y });
         }
         if (value && matrix.get({ x, y }) == value) {
             seen.push({ x, y });
-            countNeighbourhood({ matrix, value, x: x + 1, y, seen });
-            countNeighbourhood({ matrix, value, x: x - 1, y, seen });
-            countNeighbourhood({ matrix, value, x, y: y + 1, seen });
-            countNeighbourhood({ matrix, value, x, y: y - 1, seen });
+            directions.forEach(d => countNeighbourhood({ matrix, value, x: x + d.dx, y: y + d.dy, seen }));
         }
     }
     return seen;
@@ -302,8 +303,19 @@ const gameCollapseBeansScreen = new (class {
             .filter(group => group.length >= 4);
 
         if (groups.length > 0) {
-            let points = groups[0].length * (groups[0].length - 1);
-            let center = matrixToScreen({ x: average(groups[0].map(p => p.x)), y: average(groups[0].map(p => p.y)) });
+            const group = groups[0];
+
+            group.forEach(e => {
+                directions.forEach(({ dx, dy }) => {
+                    const p = { x: e.x + dx, y: e.y + dy };
+                    if (!group.some(o => equals(o, p)) && matrix.get(p) == "black") {
+                        group.push(p);
+                    }
+                })
+            });
+
+            const points = group.length * (group.length - 1);
+            const center = matrixToScreen({ x: average(group.map(p => p.x)), y: average(group.map(p => p.y)) });
             scene.add(
                 new Label({
                     ...center,
@@ -330,7 +342,7 @@ const gameCollapseBeansScreen = new (class {
                 })
             );
             addToScore(game, points);
-            groups[0].forEach(e => matrix.set({ x: e.x, y: e.y, value: null }));
+            group.forEach(e => matrix.set({ ...e, value: null }));
             show(gameMarksBeansFallingScreen, 10);
         } else {
             show(gamePlayerEntersScreen, 10);
