@@ -44,6 +44,7 @@ export class Sprite {
 
     runScript(script) {
         this.scripts.push({ script });
+        return this;
     }
 }
 

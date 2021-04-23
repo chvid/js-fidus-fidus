@@ -1,5 +1,3 @@
-import { Sprite } from "./framework";
-
 export class Matrix {
     constructor({ width, height, defaultValue, spriteFactory }) {
         this.width = width;
@@ -61,5 +59,15 @@ export class Matrix {
 
     flattenEntries() {
         return this.entries.reduce((a, b) => [...a, ...b], []).map(e => ({ ...e }));
+    }
+
+    detachSprite({x, y}) {
+        if (x >= 0 && y >= 0 && x < this.width && y < this.height) {
+            const sprite = this.entries[y][x].sprite;
+            this.entries[y][x].sprite = null;
+            return sprite;
+        } else {
+            return null;
+        }
     }
 }

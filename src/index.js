@@ -12,6 +12,7 @@ import Cloud from "./graphics/cloud.png";
 import { init, Sprite, Label } from "./framework";
 import * as Script from "./framework/script";
 import { Matrix } from "./matrix";
+import { scene } from "./framework/scene";
 
 const colors = ["red", "blue", "yellow", "green", "purple", "black"];
 
@@ -350,7 +351,15 @@ const gameCollapseBeansScreen = new (class {
                 })
             );
             addToScore(game, points);
-            group.forEach(e => matrix.set({ ...e, value: null }));
+            group.forEach(e => {
+                scene.add(
+                    matrix.detachSprite(e).runScript(Script.sequence(
+                        Script.animate("scale", 1, 0, 10),
+                        Script.call(({scene, self}) => scene.remove(self)) 
+                    ))
+                );
+                matrix.set({ ...e, value: null })
+            });
             show(gameMarksBeansFallingScreen, 10);
         } else {
             show(gamePlayerEntersScreen, 10);
