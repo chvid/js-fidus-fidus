@@ -13,9 +13,7 @@ import { init, Sprite, Label } from "./framework";
 import * as Script from "./framework/script";
 import { Matrix } from "./matrix";
 
-const colors = ["red", "blue", "yellow", "green", "purple"];
-
-const randomColor = () => colors[Math.floor(Math.random() * 5)];
+const colors = ["red", "blue", "yellow", "green", "purple", "black"];
 
 const countNeighbourhood = ({ matrix, x, y, value, seen = [] }) => {
     if (!seen.some(p => p.x == x && p.y == y)) {
@@ -200,10 +198,7 @@ const rotatePlayer = ({ direction, player, matrix }) => {
 
 const gameScreen = new (class {
     enter({ show, scene, game }) {
-        let x1 = Math.floor(Math.random() * 6);
-        let x2 = Math.floor(x1 + 1 + Math.random() * 5) % 6;
-        scene.get("matrix").set({ x: x1, y: 10, value: randomColor() });
-        scene.get("matrix").set({ x: x2, y: 10, value: randomColor() });
+        range(0, 6).forEach(x => (Math.random() > 0.2) && scene.get("matrix").set({ x, y: 10, value: colors[Math.floor(Math.random() * 6)] }));
         show(gamePlayerEntersScreen, 25);
         game.score = 0;
     }
@@ -213,7 +208,7 @@ const gamePlayerEntersScreen = new (class {
     enter({ scene, game, show }) {
         game.player = {
             rotate: 0,
-            beans: [2, 3].map(x => ({ x, y: 0, value: randomColor() })).map(b => ({ ...b, sprite: new Sprite({ image: b.value, x: 30 + 52 * b.x, y: 24 }) }))
+            beans: [2, 3].map(x => ({ x, y: 0, value: colors[Math.floor(Math.random() * 5)] })).map(b => ({ ...b, sprite: new Sprite({ image: b.value, x: 30 + 52 * b.x, y: 24 }) }))
         };
         game.player.beans.forEach(bean => bean.sprite.runScript(Script.sequence(Script.animate("scale", 1, 2, 0.2 * 50), Script.animate("scale", 2, 1, 0.3 * 50))));
         game.player.beans.forEach(bean => scene.add(bean.sprite));
