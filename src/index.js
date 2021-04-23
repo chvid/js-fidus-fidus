@@ -194,6 +194,14 @@ const rotatePlayer = ({ direction, player, matrix }) => {
     if (canMoveBean({ bean, ...rotation, matrix })) {
         moveBean({ bean, ...rotation });
         player.rotate = direction == 1 ? (player.rotate + 1) % 4 : (player.rotate + 3) % 4;
+    } else if (canMovePlayer({dx: 1, player, matrix}) && canMoveBean({ bean: {... bean, x: bean.x + 1}, ...rotation, matrix })) {
+        movePlayer({dx: 1, player});
+        moveBean({ bean, ...rotation });
+        player.rotate = direction == 1 ? (player.rotate + 1) % 4 : (player.rotate + 3) % 4;
+    } else if (canMovePlayer({dx: -1, player, matrix}) && canMoveBean({ bean: {... bean, x: bean.x - 1}, ...rotation, matrix })) {
+        movePlayer({dx: -1, player});
+        moveBean({ bean, ...rotation });
+        player.rotate = direction == 1 ? (player.rotate + 1) % 4 : (player.rotate + 3) % 4;
     }
 };
 
