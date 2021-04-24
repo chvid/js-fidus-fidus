@@ -490,8 +490,12 @@ init({
                             image: "happy",
                             ...matrixToScreen({ x, y }),
                             script: Script.loop(-1, Script.sequence(
-                                Script.animate("scale", 1, 1.2, 5),
-                                Script.animate("scale", 1.2, 1, 5)
+                                Script.wait(100),
+                                Script.animate("scale", 1, 0.9, 5),
+                                Script.animate("scale", 0.9, 1.35, 5),
+                                Script.animate("scale", 1.35, 1, 5),
+                                Script.animate("scale", 1, 1.175, 5),
+                                Script.animate("scale", 1.175, 1, 100)
                             ))
                         });
                     default:
