@@ -5,6 +5,7 @@ export const animate = (property, from, to, duration, loop = 1) => ({ type: "ani
 export const wait = duration => ({ type: "wait", duration });
 export const call = value => ({ type: "call", value });
 export const animateBy = (property, delta, duration, loop = 1, shape = "linear") => ({ type: "animateBy", property, delta, duration, loop, shape });
+export const loop = (count, item) => ({ type: "loop", count, item });
 
 const sigmoidFactor = 10;
 const sigmoid = x => (1 / (1 + Math.exp(sigmoidFactor * (x - 0.5))) - 1 / (1 + Math.exp(sigmoidFactor * -0.5))) / (1 - 2 * (1 / (1 + Math.exp(sigmoidFactor * -0.5))));
@@ -31,6 +32,8 @@ export const computeDuration = script => {
             return script.duration;
         case "animateBy":
             return script.duration * script.loop;
+        case "loop":
+            return script.count < 0 ? Number.POSITIVE_INFINITY : computeDuration(script.item) * script.count;
         default:
             return 0;
     }
@@ -105,5 +108,9 @@ export const computeState = (context, script, time) => {
             return {};
         case "wait":
             return {};
+        case "loop": {
+            const duration = computeDuration(script.item);
+            return computeState(context, script.item, time - Math.floor(time / duration) * duration);
+        }
     }
 };

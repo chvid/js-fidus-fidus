@@ -1,6 +1,7 @@
 import "./index.css";
 
 import GraphicsSheet from "./graphics/graphics-sheet.png";
+import GraphicsSheetPartTwo from "./graphics/graphics-sheet-part-two.png";
 import Background from "./graphics/background.png";
 import BigBlack from "./graphics/big-black.png";
 import BigPurple from "./graphics/big-purple.png";
@@ -194,12 +195,12 @@ const rotatePlayer = ({ direction, player, matrix }) => {
     if (canMoveBean({ bean, ...rotation, matrix })) {
         moveBean({ bean, ...rotation });
         player.rotate = direction == 1 ? (player.rotate + 1) % 4 : (player.rotate + 3) % 4;
-    } else if (canMovePlayer({dx: 1, player, matrix}) && canMoveBean({ bean: {... bean, x: bean.x + 1}, ...rotation, matrix })) {
-        movePlayer({dx: 1, player});
+    } else if (canMovePlayer({ dx: 1, player, matrix }) && canMoveBean({ bean: { ...bean, x: bean.x + 1 }, ...rotation, matrix })) {
+        movePlayer({ dx: 1, player });
         moveBean({ bean, ...rotation });
         player.rotate = direction == 1 ? (player.rotate + 1) % 4 : (player.rotate + 3) % 4;
-    } else if (canMovePlayer({dx: -1, player, matrix}) && canMoveBean({ bean: {... bean, x: bean.x - 1}, ...rotation, matrix })) {
-        movePlayer({dx: -1, player});
+    } else if (canMovePlayer({ dx: -1, player, matrix }) && canMoveBean({ bean: { ...bean, x: bean.x - 1 }, ...rotation, matrix })) {
+        movePlayer({ dx: -1, player });
         moveBean({ bean, ...rotation });
         player.rotate = direction == 1 ? (player.rotate + 1) % 4 : (player.rotate + 3) % 4;
     }
@@ -354,11 +355,14 @@ const gameCollapseBeansScreen = new (class {
                 scene.add(
                     matrix.detachSprite(e).runScript(Script.sequence(
                         Script.animate("scale", 1, 0, 10),
-                        Script.call(({scene, self}) => scene.remove(self)) 
+                        Script.call(({ scene, self }) => scene.remove(self))
                     ))
                 );
                 matrix.set({ ...e, value: null })
             });
+
+            matrix.set({ ...group[Math.floor(Math.random() * group.length)], value: "happy" });
+
             show(gameMarksBeansFallingScreen, 10);
         } else {
             show(gamePlayerEntersScreen, 10);
@@ -456,6 +460,10 @@ init({
         blackFalling: { source: GraphicsSheet, x: 640, y: 128, w: 128, h: 128, scale: 0.4 },
         rainbow: { source: GraphicsSheet, x: 768, y: 0, w: 128, h: 128, scale: 0.4 },
         rainbowFalling: { source: GraphicsSheet, x: 768, y: 128, w: 128, h: 128, scale: 0.4 },
+        bomb: { source: GraphicsSheetPartTwo, x: 0, y: 0, w: 128, h: 128, scale: 0.4 },
+        bombFalling: { source: GraphicsSheetPartTwo, x: 0, y: 128, w: 128, h: 128, scale: 0.4 },
+        happy: { source: GraphicsSheetPartTwo, x: 128, y: 0, w: 128, h: 128, scale: 0.4 },
+        happyFalling: { source: GraphicsSheetPartTwo, x: 128, y: 128, w: 128, h: 128, scale: 0.4 },
         background: { source: Background, scale: 0.5 },
         bigRed: { source: BigRed, scale: 0.5 },
         bigPurple: { source: BigPurple, scale: 0.5 },
@@ -473,7 +481,23 @@ init({
             width: 6,
             height: 11,
             defaultValue: "blocked",
-            spriteFactory: ({ x, y, value }) => (value != null ? new Sprite({ image: value, ...matrixToScreen({ x, y }) }) : null)
+            spriteFactory: ({ x, y, value }) => {
+                switch (value) {
+                    case null:
+                        return null;
+                    case "happy":
+                        return new Sprite({
+                            image: "happy",
+                            ...matrixToScreen({ x, y }),
+                            script: Script.loop(-1, Script.sequence(
+                                Script.animate("scale", 1, 1.2, 5),
+                                Script.animate("scale", 1.2, 1, 5)
+                            ))
+                        });
+                    default:
+                        return new Sprite({ image: value, ...matrixToScreen({ x, y }) });
+                }
+            }
         }),
         background
     },
