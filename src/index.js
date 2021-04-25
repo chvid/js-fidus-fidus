@@ -10,6 +10,7 @@ import BigHalo from "./graphics/big-halo.png";
 import TitleGreen from "./graphics/title-green.png";
 import TitleRed from "./graphics/title-red.png";
 import Cloud from "./graphics/cloud.png";
+import Spark from "./graphics/spark.png";
 import { init, Sprite, Label } from "./framework";
 import * as Script from "./framework/script";
 import { Matrix } from "./matrix";
@@ -25,7 +26,7 @@ const countNeighbourhood = ({ matrix, x, y, value, seen = [] }) => {
         if (value == null) {
             value = matrix.get({ x, y });
         }
-        if (value && (matrix.get({ x, y }) == value || matrix.get({ x, y }) == "rainbow")) {
+        if (value && (matrix.get({ x, y }) == value || matrix.get({ x, y }) == "rainbow" || matrix.get({ x, y }) == "happy")) {
             seen.push({ x, y });
             directions.forEach(d => countNeighbourhood({ matrix, value, x: x + d.dx, y: y + d.dy, seen }));
         }
@@ -302,6 +303,31 @@ const average = list => list.reduce((a, b) => a + b, 0) / list.length;
 
 const matrixToScreen = ({ x, y }) => ({ x: 30 + 52 * x, y: 24 + 52 * y });
 
+class Flare extends Sprite {
+    constructor(props) {
+        super(props);
+        this.seed = Math.random() * 100;
+    }
+
+    draw({ images, counter }) {
+        for (let i = 1; i <= 5; i++) {
+            let c = counter + this.seed + i;
+            let p = {
+                ... this,
+                x: this.x + 5 * Math.sin(c * 3) * this.scale * (1 + c % 10),
+                y: this.y + 5 * Math.cos(c * 2) * this.scale * (1 + c % 10),
+                scale: this.scale * i / 5
+            }
+            images.draw(p);
+        }
+    }
+
+    move(props) {
+        super.move(props);
+    }
+}
+
+
 const gameCollapseBeansScreen = new (class {
     enter({ show, scene, game }) {
         const matrix = scene.get("matrix");
@@ -321,6 +347,28 @@ const gameCollapseBeansScreen = new (class {
                         group.push(p);
                     }
                 })
+            });
+
+            group.filter(e => matrix.get(e) == "happy").forEach(e => {
+                range(-2, 3).forEach(dx => range(-2, 3).forEach(dy => {
+                    const p = { x: e.x + dx, y: e.y + dy };
+                    if (!group.some(o => equals(o, p)) && matrix.get(p) != null && matrix.get(p) != "blocked") {
+                        group.push(p);
+                    }
+                    scene.add(new Flare({ ...matrixToScreen(p), image: "spark" })).runScript(
+                        Script.sequence(
+                            Script.group(
+                                Script.animate("alpha", 0.5, 1, 10),
+                                Script.animate("scale", 0, 1.5, 10)
+                            ),
+                            Script.group(
+                                Script.animate("alpha", 1, 0, 50),
+                                Script.animate("scale", 1.5, 0, 50)
+                            ),
+                            Script.call(({ scene, self }) => scene.remove(self))
+                        )
+                    );
+                }))
             });
 
             const points = group.length * (group.length - 1);
@@ -471,7 +519,8 @@ init({
         bigHalo: { source: BigHalo, scale: 0.5 },
         titleRed: { source: TitleRed, scale: 0.5 },
         titleGreen: { source: TitleGreen, scale: 0.5 },
-        cloud: { source: Cloud, scale: 0.5 }
+        cloud: { source: Cloud, scale: 0.5 },
+        spark: { source: Spark, scale: 0.5 }
     },
     start: startScreen,
     scene: {
