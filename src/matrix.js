@@ -50,18 +50,18 @@ export class Matrix {
     }
 
     set({ x, y, value }) {
-        return this.entries[y][x] = {
+        return (this.entries[y][x] = {
             ...this.entries[y][x],
             sprite: this.spriteFactory({ x, y, value }),
             value
-        };
+        });
     }
 
     flattenEntries() {
         return this.entries.reduce((a, b) => [...a, ...b], []).map(e => ({ ...e }));
     }
 
-    detachSprite({x, y}) {
+    detachSprite({ x, y }) {
         if (x >= 0 && y >= 0 && x < this.width && y < this.height) {
             const sprite = this.entries[y][x].sprite;
             this.entries[y][x].sprite = null;

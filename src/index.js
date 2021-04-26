@@ -19,7 +19,12 @@ import { equals, range, average } from "./utils";
 
 const colors = ["red", "blue", "yellow", "green", "purple", "black"];
 
-const directions = [{ dx: -1, dy: 0 }, { dx: 1, dy: 0 }, { dx: 0, dy: -1 }, { dx: 0, dy: 1 }];
+const directions = [
+    { dx: -1, dy: 0 },
+    { dx: 1, dy: 0 },
+    { dx: 0, dy: -1 },
+    { dx: 0, dy: 1 }
+];
 
 const countNeighbourhood = ({ matrix, x, y, value, seen = [] }) => {
     if (!seen.some(p => equals(p, { x, y }))) {
@@ -209,7 +214,7 @@ const rotatePlayer = ({ direction, player, matrix }) => {
 
 const gameScreen = new (class {
     enter({ show, scene, game }) {
-        range(0, 6).forEach(x => (Math.random() > 0.2) && scene.get("matrix").set({ x, y: 10, value: colors[Math.floor(Math.random() * 6)] }));
+        range(0, 6).forEach(x => Math.random() > 0.2 && scene.get("matrix").set({ x, y: 10, value: colors[Math.floor(Math.random() * 6)] }));
         show(gamePlayerEntersScreen, 25);
         game.score = 0;
     }
@@ -219,7 +224,9 @@ const gamePlayerEntersScreen = new (class {
     enter({ scene, game, show }) {
         game.player = {
             rotate: 0,
-            beans: [2, 3].map(x => ({ x, y: 0, value: Math.random() < 0.025 ? "rainbow" : colors[Math.floor(Math.random() * 5)] })).map(b => ({ ...b, sprite: new Sprite({ image: b.value, x: 30 + 52 * b.x, y: 24 }) }))
+            beans: [2, 3]
+                .map(x => ({ x, y: 0, value: Math.random() < 0.025 ? "rainbow" : colors[Math.floor(Math.random() * 5)] }))
+                .map(b => ({ ...b, sprite: new Sprite({ image: b.value, x: 30 + 52 * b.x, y: 24 }) }))
         };
         game.player.beans.forEach(bean => bean.sprite.runScript(Script.sequence(Script.animate("scale", 1, 2, 0.2 * 50), Script.animate("scale", 2, 1, 0.3 * 50))));
         game.player.beans.forEach(bean => scene.add(bean.sprite));
@@ -291,7 +298,6 @@ const gameUpdateBeansScreen = new (class {
     }
 })();
 
-
 const matrixToScreen = ({ x, y }) => ({ x: 30 + 52 * x, y: 24 + 52 * y });
 
 const gameCollapseBeansScreen = new (class {
@@ -312,30 +318,28 @@ const gameCollapseBeansScreen = new (class {
                     if (!group.some(o => equals(o, p)) && matrix.get(p) == "black") {
                         group.push(p);
                     }
-                })
+                });
             });
 
-            group.filter(e => matrix.get(e) == "happy").forEach(e => {
-                range(-2, 3).forEach(dx => range(-2, 3).forEach(dy => {
-                    const p = { x: e.x + dx, y: e.y + dy };
-                    if (!group.some(o => equals(o, p)) && matrix.get(p) != null && matrix.get(p) != "blocked") {
-                        group.push(p);
-                    }
-                    scene.add(new ParticleEmitter({ ...matrixToScreen(p), image: "spark", dy: -1, ttl: 130 })).runScript(
-                        Script.sequence(
-                            Script.group(
-                                Script.animate("alpha", 0.5, 1, 10),
-                                Script.animate("scale", 0, 1.5, 10)
-                            ),
-                            Script.group(
-                                Script.animate("alpha", 1, 0, 120),
-                                Script.animate("scale", 1.5, 0, 120)
-                            ),
-                            Script.call(({ scene, self }) => scene.remove(self))
-                        )
+            group
+                .filter(e => matrix.get(e) == "happy")
+                .forEach(e => {
+                    range(-2, 3).forEach(dx =>
+                        range(-2, 3).forEach(dy => {
+                            const p = { x: e.x + dx, y: e.y + dy };
+                            if (!group.some(o => equals(o, p)) && matrix.get(p) != null && matrix.get(p) != "blocked") {
+                                group.push(p);
+                            }
+                            scene.add(new ParticleEmitter({ ...matrixToScreen(p), image: "spark", dy: -1, ttl: 130 })).runScript(
+                                Script.sequence(
+                                    Script.group(Script.animate("alpha", 0.5, 1, 10), Script.animate("scale", 0, 1.5, 10)),
+                                    Script.group(Script.animate("alpha", 1, 0, 120), Script.animate("scale", 1.5, 0, 120)),
+                                    Script.call(({ scene, self }) => scene.remove(self))
+                                )
+                            );
+                        })
                     );
-                }))
-            });
+                });
 
             const points = group.length * (group.length - 1);
             const center = matrixToScreen({ x: average(group.map(p => p.x)), y: average(group.map(p => p.y)) });
@@ -367,12 +371,14 @@ const gameCollapseBeansScreen = new (class {
             addToScore(game, points);
             group.forEach(e => {
                 scene.add(
-                    matrix.detachSprite(e).runScript(Script.sequence(
-                        Script.animate("scale", 1, 0, 10),
-                        Script.call(({ scene, self }) => scene.remove(self))
-                    ))
+                    matrix.detachSprite(e).runScript(
+                        Script.sequence(
+                            Script.animate("scale", 1, 0, 10),
+                            Script.call(({ scene, self }) => scene.remove(self))
+                        )
+                    )
                 );
-                matrix.set({ ...e, value: null })
+                matrix.set({ ...e, value: null });
             });
 
             matrix.set({ ...group[Math.floor(Math.random() * group.length)], value: "happy" });
@@ -504,14 +510,17 @@ init({
                         return new Sprite({
                             image: "happy",
                             ...matrixToScreen({ x, y }),
-                            script: Script.loop(-1, Script.sequence(
-                                Script.wait(100),
-                                Script.animate("scale", 1, 0.9, 5),
-                                Script.animate("scale", 0.9, 1.35, 5),
-                                Script.animate("scale", 1.35, 1, 5),
-                                Script.animate("scale", 1, 1.175, 5),
-                                Script.animate("scale", 1.175, 1, 100)
-                            ))
+                            script: Script.loop(
+                                -1,
+                                Script.sequence(
+                                    Script.wait(100),
+                                    Script.animate("scale", 1, 0.9, 5),
+                                    Script.animate("scale", 0.9, 1.35, 5),
+                                    Script.animate("scale", 1.35, 1, 5),
+                                    Script.animate("scale", 1, 1.175, 5),
+                                    Script.animate("scale", 1.175, 1, 100)
+                                )
+                            )
                         });
                     default:
                         return new Sprite({ image: value, ...matrixToScreen({ x, y }) });
