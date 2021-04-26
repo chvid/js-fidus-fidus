@@ -321,15 +321,15 @@ const gameCollapseBeansScreen = new (class {
                     if (!group.some(o => equals(o, p)) && matrix.get(p) != null && matrix.get(p) != "blocked") {
                         group.push(p);
                     }
-                    scene.add(new ParticleEmitter({ ...matrixToScreen(p), image: "spark" })).runScript(
+                    scene.add(new ParticleEmitter({ ...matrixToScreen(p), image: "spark", dy: -1, ttl: 130 })).runScript(
                         Script.sequence(
                             Script.group(
-                                Script.animate("alpha", 0.5, 1, 20),
-                                Script.animate("scale", 0, 1.5, 20)
+                                Script.animate("alpha", 0.5, 1, 10),
+                                Script.animate("scale", 0, 1.5, 10)
                             ),
                             Script.group(
-                                Script.animate("alpha", 1, 0, 80),
-                                Script.animate("scale", 1.5, 0, 80)
+                                Script.animate("alpha", 1, 0, 120),
+                                Script.animate("scale", 1.5, 0, 120)
                             ),
                             Script.call(({ scene, self }) => scene.remove(self))
                         )
