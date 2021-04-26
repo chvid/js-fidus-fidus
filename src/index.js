@@ -14,12 +14,12 @@ import Spark from "./graphics/spark.png";
 import { init, Sprite, Label } from "./framework";
 import * as Script from "./framework/script";
 import { Matrix } from "./matrix";
+import { ParticleEmitter } from "./particle-emitter";
+import { equals, range, average } from "./utils";
 
 const colors = ["red", "blue", "yellow", "green", "purple", "black"];
 
 const directions = [{ dx: -1, dy: 0 }, { dx: 1, dy: 0 }, { dx: 0, dy: -1 }, { dx: 0, dy: 1 }];
-
-const equals = (a, b) => [...Object.keys(a), ...Object.keys(b)].every(k => a[k] == b[k]);
 
 const countNeighbourhood = ({ matrix, x, y, value, seen = [] }) => {
     if (!seen.some(p => equals(p, { x, y }))) {
@@ -291,42 +291,8 @@ const gameUpdateBeansScreen = new (class {
     }
 })();
 
-const range = (from, to) => {
-    let result = [];
-    for (let i = from; i < to; i++) {
-        result.push(i);
-    }
-    return result;
-};
-
-const average = list => list.reduce((a, b) => a + b, 0) / list.length;
 
 const matrixToScreen = ({ x, y }) => ({ x: 30 + 52 * x, y: 24 + 52 * y });
-
-class Flare extends Sprite {
-    constructor(props) {
-        super(props);
-        this.seed = Math.random() * 100;
-    }
-
-    draw({ images, counter }) {
-        for (let i = 1; i <= 5; i++) {
-            let c = counter + this.seed + i;
-            let p = {
-                ... this,
-                x: this.x + 5 * Math.sin(c * 3) * this.scale * (1 + c % 10),
-                y: this.y + 5 * Math.cos(c * 2) * this.scale * (1 + c % 10),
-                scale: this.scale * i / 5
-            }
-            images.draw(p);
-        }
-    }
-
-    move(props) {
-        super.move(props);
-    }
-}
-
 
 const gameCollapseBeansScreen = new (class {
     enter({ show, scene, game }) {
@@ -355,15 +321,15 @@ const gameCollapseBeansScreen = new (class {
                     if (!group.some(o => equals(o, p)) && matrix.get(p) != null && matrix.get(p) != "blocked") {
                         group.push(p);
                     }
-                    scene.add(new Flare({ ...matrixToScreen(p), image: "spark" })).runScript(
+                    scene.add(new ParticleEmitter({ ...matrixToScreen(p), image: "spark" })).runScript(
                         Script.sequence(
                             Script.group(
-                                Script.animate("alpha", 0.5, 1, 10),
-                                Script.animate("scale", 0, 1.5, 10)
+                                Script.animate("alpha", 0.5, 1, 20),
+                                Script.animate("scale", 0, 1.5, 20)
                             ),
                             Script.group(
-                                Script.animate("alpha", 1, 0, 50),
-                                Script.animate("scale", 1.5, 0, 50)
+                                Script.animate("alpha", 1, 0, 80),
+                                Script.animate("scale", 1.5, 0, 80)
                             ),
                             Script.call(({ scene, self }) => scene.remove(self))
                         )
