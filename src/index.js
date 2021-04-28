@@ -39,6 +39,10 @@ const countNeighbourhood = ({ matrix, x, y, value, seen = [] }) => {
     return seen;
 };
 
+const matrixToScreen = ({ x, y }) => ({ x: 30 + 52 * x, y: 24 + 52 * y });
+
+const checkKeyboard = (keyboardCounter, counter, interval, delay) => counter - keyboardCounter === 0 || ((counter - keyboardCounter) % interval == 0 && counter - keyboardCounter >= delay);
+
 const startScreen = new (class {
     enter({ scene }) {
         scene.add(
@@ -124,8 +128,6 @@ const startScreen = new (class {
         scene.get("titleGreen").runScript(removeScriptForTitle);
     }
 })();
-
-const checkKeyboard = (keyboardCounter, counter, interval, delay) => counter - keyboardCounter === 0 || ((counter - keyboardCounter) % interval == 0 && counter - keyboardCounter >= delay);
 
 const gameOverSceen = new (class {
     enter({ scene, game, show }) {
@@ -220,6 +222,26 @@ const gameScreen = new (class {
     }
 })();
 
+const addBlackBean = ({ x, matrix }) => {
+    for (let y = matrix.height - 1; y >= 0; y--) {
+        if (Math.random() < 0.1) {
+            return false;
+        }
+
+        if (matrix.get({ x, y }) == null) {
+            matrix.set({ x, y, value: "black" }).sprite.runScript(
+                Script.group(
+                    Script.animate("alpha", 0, 1, 10),
+                    Script.animate("y", matrixToScreen({ y: y - 4 }).y, matrixToScreen({ y }).y, 10)
+                )
+            );
+
+            return true;
+        }
+    }
+    return false;
+}
+
 const gamePlayerEntersScreen = new (class {
     enter({ scene, game, show }) {
         game.player = {
@@ -230,6 +252,7 @@ const gamePlayerEntersScreen = new (class {
         };
         game.player.beans.forEach(bean => bean.sprite.runScript(Script.sequence(Script.animate("scale", 1, 2, 0.2 * 50), Script.animate("scale", 2, 1, 0.3 * 50))));
         game.player.beans.forEach(bean => scene.add(bean.sprite));
+        addBlackBean({ x: Math.floor(Math.random() * 6), matrix: scene.get("matrix") });
         show(gamePlayerMovesScreen, 25);
     }
 })();
@@ -297,8 +320,6 @@ const gameUpdateBeansScreen = new (class {
         }
     }
 })();
-
-const matrixToScreen = ({ x, y }) => ({ x: 30 + 52 * x, y: 24 + 52 * y });
 
 const gameCollapseBeansScreen = new (class {
     enter({ show, scene, game }) {
