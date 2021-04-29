@@ -222,24 +222,37 @@ const gameScreen = new (class {
     }
 })();
 
-const addBlackBean = ({ x, matrix }) => {
-    for (let y = matrix.height - 1; y >= 0; y--) {
-        if (Math.random() < 0.1) {
-            return false;
-        }
-
-        if (matrix.get({ x, y }) == null) {
-            matrix.set({ x, y, value: "black" }).sprite.runScript(
-                Script.group(
-                    Script.animate("alpha", 0, 1, 10),
-                    Script.animate("y", matrixToScreen({ y: y - 4 }).y, matrixToScreen({ y }).y, 10)
-                )
-            );
-
-            return true;
+const pickPlaceForBean = ({ matrix }) => {
+    while (true) {
+        const x = Math.floor(6 * Math.random());
+        for (let y = matrix.height - 1; y >= 0; y--) {
+            if (matrix.get({ x, y }) == null) {
+                return {x,y};
+            }
         }
     }
-    return false;
+}
+
+const addBlackBean = ({matrix }) => {
+    const {x, y} = pickPlaceForBean({matrix});
+
+    matrix.set({ x, y, value: "black" }).sprite.runScript(
+        Script.group(
+            Script.animate("alpha", 0, 1, 10),
+            Script.animate("y", matrixToScreen({ y: y - 4 }).y, matrixToScreen({ y }).y, 10)
+        )
+    );
+}
+
+const addBlackBomb = ({ matrix }) => {
+    const {x, y} = pickPlaceForBean({matrix});
+
+    matrix.set({ x, y, value: "bomb" }).sprite.runScript(
+        Script.group(
+            Script.animate("alpha", 0, 1, 10),
+            Script.animate("y", matrixToScreen({ y: y - 4 }).y, matrixToScreen({ y }).y, 10)
+        )
+    );
 }
 
 const gamePlayerEntersScreen = new (class {
@@ -252,7 +265,8 @@ const gamePlayerEntersScreen = new (class {
         };
         game.player.beans.forEach(bean => bean.sprite.runScript(Script.sequence(Script.animate("scale", 1, 2, 0.2 * 50), Script.animate("scale", 2, 1, 0.3 * 50))));
         game.player.beans.forEach(bean => scene.add(bean.sprite));
-        addBlackBean({ x: Math.floor(Math.random() * 6), matrix: scene.get("matrix") });
+        addBlackBean({ matrix: scene.get("matrix") });
+        addBlackBomb({ matrix: scene.get("matrix") });
         show(gamePlayerMovesScreen, 25);
     }
 })();
