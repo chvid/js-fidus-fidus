@@ -227,14 +227,14 @@ const pickPlaceForBean = ({ matrix }) => {
         const x = Math.floor(6 * Math.random());
         for (let y = matrix.height - 1; y >= 0; y--) {
             if (matrix.get({ x, y }) == null) {
-                return {x,y};
+                return { x, y };
             }
         }
     }
 }
 
-const addBlackBean = ({matrix }) => {
-    const {x, y} = pickPlaceForBean({matrix});
+const addBlackBean = ({ matrix }) => {
+    const { x, y } = pickPlaceForBean({ matrix });
 
     matrix.set({ x, y, value: "black" }).sprite.runScript(
         Script.group(
@@ -245,7 +245,7 @@ const addBlackBean = ({matrix }) => {
 }
 
 const addBlackBomb = ({ matrix }) => {
-    const {x, y} = pickPlaceForBean({matrix});
+    const { x, y } = pickPlaceForBean({ matrix });
 
     matrix.set({ x, y, value: "bomb" }).sprite.runScript(
         Script.group(
@@ -350,14 +350,13 @@ const gameCollapseBeansScreen = new (class {
             group.forEach(e => {
                 directions.forEach(({ dx, dy }) => {
                     const p = { x: e.x + dx, y: e.y + dy };
-                    if (!group.some(o => equals(o, p)) && matrix.get(p) == "black") {
+                    if (!group.some(o => equals(o, p)) && (matrix.get(p) == "black" || matrix.get(p) == "bomb")) {
                         group.push(p);
                     }
                 });
             });
 
-            group
-                .filter(e => matrix.get(e) == "happy")
+            [...group.filter(e => matrix.get(e) == "happy")]
                 .forEach(e => {
                     range(-2, 3).forEach(dx =>
                         range(-2, 3).forEach(dy => {
