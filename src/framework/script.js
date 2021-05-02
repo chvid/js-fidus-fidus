@@ -104,7 +104,7 @@ export const computeState = (context, script, time) => {
             return result;
         }
         case "call":
-            if (time == 0) script.value(context);
+            if (Math.floor(time) == 0) script.value(context);
             return {};
         case "wait":
             return {};

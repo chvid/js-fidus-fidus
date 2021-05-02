@@ -21,7 +21,7 @@ export class Sprite {
                 s.deltas = {};
             }
 
-            let delta = counter - s.addedAt;
+            let delta = Math.floor(counter - s.addedAt);
 
             if (computeDuration(s.script) >= delta) {
                 let computed = computeState({ ...arguments[0], self: this }, s.script, delta);

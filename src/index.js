@@ -31,7 +31,8 @@ const countNeighbourhood = ({ matrix, x, y, value, seen = [] }) => {
         if (value == null) {
             value = matrix.get({ x, y });
         }
-        if (value && (matrix.get({ x, y }) == value || matrix.get({ x, y }) == "rainbow" || matrix.get({ x, y }) == "happy")) {
+        if (["red", "blue", "yellow", "green", "purple"].indexOf(value) >= 0 &&
+            (matrix.get({ x, y }) == value || matrix.get({ x, y }) == "rainbow" || matrix.get({ x, y }) == "happy")) {
             seen.push({ x, y });
             directions.forEach(d => countNeighbourhood({ matrix, value, x: x + d.dx, y: y + d.dy, seen }));
         }
@@ -129,7 +130,7 @@ const startScreen = new (class {
     }
 })();
 
-const gameOverSceen = new (class {
+const gameOverScreen = new (class {
     enter({ scene, game, show }) {
         game.player.beans.forEach(bean => scene.remove(bean.sprite));
 
@@ -255,6 +256,28 @@ const addBlackBomb = ({ matrix }) => {
     );
 }
 
+const explodeBomb = ({ matrix, x, y }) => {
+    console.log("explode Bomb", x, y, matrix)
+    matrix.set({ x, y, value: "black" });
+
+    const addBlackBeanForBomb = ({ x, y }) => {
+        if (matrix.get({ x, y }) == null) {
+            y = range(0, 12).find(y => matrix.get({ x, y }) != null) - 1;
+            matrix.set({ x, y, value: "black" });
+        } else {
+            for (let i = 0; i < y; i++) {
+                matrix.set({ x, y: i, value: matrix.get({ x, y: i + 1 }) });
+            }
+            matrix.set(({ x, y, value: "black" }));
+        }
+    }
+
+    addBlackBeanForBomb({ x, y: y - 1 });
+    addBlackBeanForBomb({ x: Math.max(0, x - 1), y });
+    addBlackBeanForBomb({ x: Math.min(5, x + 1), y });
+
+}
+
 const gamePlayerEntersScreen = new (class {
     enter({ scene, game, show }) {
         game.player = {
@@ -327,7 +350,7 @@ const gameUpdateBeansScreen = new (class {
         }
         if (player.beans.length == 0) {
             if (matrix.get({ x: 2, y: 0 }) || matrix.get({ x: 3, y: 0 })) {
-                show(gameOverSceen);
+                show(gameOverScreen);
             } else {
                 show(gameCollapseBeansScreen);
             }
@@ -555,6 +578,35 @@ init({
                                     Script.animate("scale", 1.175, 1, 100)
                                 )
                             )
+                        });
+                    case "bomb":
+                        return new Sprite({
+                            image: "bomb",
+                            ...matrixToScreen({ x, y }),
+                            script:
+                                Script.sequence(
+                                    Script.wait(100 + Math.floor(100 * Math.random())),
+                                    Script.animate("scale", 1, 1.1, 10),
+                                    Script.animate("scale", 1.1, 1, 10),
+                                    Script.animate("scale", 1, 1.2, 10),
+                                    Script.animate("scale", 1.2, 1, 10),
+                                    Script.wait(100),
+                                    Script.animate("scale", 1, 1.1, 10),
+                                    Script.animate("scale", 1.1, 1, 10),
+                                    Script.animate("scale", 1, 1.2, 10),
+                                    Script.animate("scale", 1.2, 1, 10),
+                                    Script.animate("scale", 1, 1.4, 10),
+                                    Script.animate("scale", 1.4, 1, 10),
+                                    Script.wait(100),
+                                    Script.animate("scale", 1, 1.1, 10),
+                                    Script.animate("scale", 1.1, 1, 10),
+                                    Script.animate("scale", 1, 1.2, 10),
+                                    Script.animate("scale", 1.2, 1, 10),
+                                    Script.animate("scale", 1, 1.4, 10),
+                                    Script.animate("scale", 1.4, 1, 10),
+                                    Script.animate("scale", 1, 1.8, 10),
+                                    Script.call(({ scene, screen }) => screen != gameOverScreen && explodeBomb({ x, y, matrix: scene.get("matrix") }))
+                                )
                         });
                     default:
                         return new Sprite({ image: value, ...matrixToScreen({ x, y }) });
