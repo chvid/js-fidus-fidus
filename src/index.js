@@ -553,8 +553,8 @@ init({
     },
     start: startScreen,
     scene: {
-        score: new Label({ text: ({ game }) => ("" + (game.score + 1000000)).substring(2), x: 280, y: 12 }),
-        hiscore: new Label({ text: ({ game }) => ("" + (game.hiscore + 1000000)).substring(2), x: 40, y: 12 }),
+        score: new Label({ text: ({ game }) => ("" + (game.score + 1000000)).substring(2), x: 280, y: 12, zIndex: 9999 }),
+        hiscore: new Label({ text: ({ game }) => ("" + (game.hiscore + 1000000)).substring(2), x: 40, y: 12, zIndex: 9999 }),
         matrix: new Matrix({
             width: 6,
             height: 11,
