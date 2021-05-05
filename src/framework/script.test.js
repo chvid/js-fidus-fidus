@@ -38,3 +38,29 @@ test("callbacks", () => {
 
     expect(count).toStrictEqual({ a: 1, b: 1 });
 });
+
+test("loops", () => {
+    const count = { a: 0 };
+
+    const a = () => count.a++;
+
+    const script = Script.loop(-1, Script.sequence(Script.wait(10), Script.call(() => a())));
+
+    expect(count).toStrictEqual({ a: 0 });
+
+    Script.computeState({}, script, 0);
+
+    expect(count).toStrictEqual({ a: 0 });
+
+    Script.computeState({}, script, 10);
+
+    expect(count).toStrictEqual({ a: 1 });
+
+    Script.computeState({}, script, 19);
+
+    expect(count).toStrictEqual({ a: 1 });
+
+    Script.computeState({}, script, 20);
+
+    expect(count).toStrictEqual({ a: 2 });
+});

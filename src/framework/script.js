@@ -110,7 +110,11 @@ export const computeState = (context, script, time) => {
             return {};
         case "loop": {
             const duration = computeDuration(script.item);
-            return computeState(context, script.item, time - Math.floor(time / duration) * duration);
+            const fraction = time - Math.floor(time / duration) * duration;
+            if (time >= duration && fraction == 0) {
+                computeState(context, script.item, duration);
+            } 
+            return computeState(context, script.item, fraction);
         }
     }
 };

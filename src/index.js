@@ -605,7 +605,10 @@ init({
                                     Script.animate("scale", 1, 1.4, 10),
                                     Script.animate("scale", 1.4, 1, 10),
                                     Script.animate("scale", 1, 1.8, 10),
-                                    Script.call(({ scene, screen }) => screen != gameOverScreen && explodeBomb({ x, y, matrix: scene.get("matrix") }))
+                                    Script.loop(-1, Script.sequence(
+                                        Script.animate("scale", 1.8, 2, 5),
+                                        Script.call(({ scene, screen }) => (screen == gamePlayerMovesScreen) && explodeBomb({ x, y, matrix: scene.get("matrix") }))
+                                    ))
                                 )
                         });
                     default:
